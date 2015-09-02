@@ -1,0 +1,62 @@
+{
+  "name": "phosphor-splitpanel",
+  "version": "0.9.0",
+  "description": "A Phosphor layout widget which arranges its children into resizable sections.",
+  "main": "lib/index.js",
+  "typescript": {
+    "definition": "lib/phosphor-splitpanel.d.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "browserify-istanbul": "^0.2.1",
+    "coveralls": "^2.11.4",
+    "dts-generator": "^1.5.0",
+    "expect.js": "^0.3.1",
+    "karma": "^0.13.9",
+    "karma-browserify": "^4.3.0",
+    "karma-coverage": "^0.5.0",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-ie-launcher": "^0.2.0",
+    "karma-mocha": "^0.2.0",
+    "karma-mocha-reporter": "^1.1.1",
+    "mocha": "^2.2.5",
+    "rimraf": "^2.4.2",
+    "typedoc": "^0.3.8",
+    "typescript": "^1.5.3"
+  },
+  "scripts": {
+    "clean": "rimraf lib && rimraf test/build && rimraf test/coverage",
+    "build:src": "tsc --project src",
+    "build:dts": "node scripts/dtsbundle.js",
+    "build:css": "cp src/*.css lib/.",
+    "build:test": "tsc --project test/src",
+    "build": "npm run build:src && npm run build:dts && npm run build:css && npm run build:test",
+    "docs": "rimraf docs/api && typedoc --options scripts/tdoptions.json",
+    "prepublish": "npm run build",
+    "test:chrome": "karma start --browsers=Chrome test/karma.conf.js",
+    "test:coverage": "karma start test/karma-cov.conf.js",
+    "test:firefox": "karma start --browsers=Firefox test/karma.conf.js",
+    "test:ie": "karma start --browsers=IE test/karma.conf.js",
+    "test": "npm run test:firefox"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phosphorjs/phosphor-splitpanel.git"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/index.css",
+    "lib/phosphor-splitpanel.d.ts"
+  ],
+  "keywords": [
+    "ui",
+    "splitpanel"
+  ],
+  "author": "S. Chris Colbert <sccolbert@gmail.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/phosphorjs/phosphor-splitpanel/issues"
+  },
+  "homepage": "https://github.com/phosphorjs/phosphor-splitpanel"
+}

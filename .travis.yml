@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - '0.12'
+sudo: false
+env:
+  matrix:
+    - GROUP=
+  global:
+    - secure: BeqGzvIYTRZ/a29OFbjxDlmJME2f2rOS/Y/Ee/BrbWop0xDe3S+Cnb/CeyCITIg/tZLimW4IKECt7lVjH4a5/KWYZpgzKD91jf8t2vEmlhF/LbFGrqOPiyU75nCPld7jswetAZhOBEpjhweNvsAdw5mccl6cK4RdIWA6TPahNHkvAti/5Z3Q4Bp4hXbzlaL5/46IKgD+54tGwETVZbkm7L74ezBazFfXGoBPqZiCDOGOiGG1PJrNmtGWvP7LfcDIRB89oS7z4CjuCQvkT4I1BTUso8R7lSS6HX4wOdHbDo/5pOs0hnnN6JxfPAFKmLlK83/ApWlbMgKAFSNdGwuNzHjnpKQnqD18uB+ZDgJ6W/nuAtp+Kyqxhg6rrx01l977qKe+XGi7EujfzxnBjL3LBlWLlvomps0txnq04zNoLDKdm2sDlS485yx+fB7wGsmypMMn9vXWGPrkqNaGdkxUtEYKiPrr7hi5wf5WWPU6desQ+bdZgRIPCWEqJEdMwpiuGqO0XcXW3ppAYlH33PHA82Ht3dDa7m5zjALmINKn4NOqVMjmJ2clwt+4a4i4TVXaRPIcptvxRicycdOxe0ec7cxSBzZHJf3DUUpLIHrp1uVA3crO+TVxgTPT4IVMkIHhSvQFhGUrb9raERzVwI7R50T0MigKEDlG2lW7iMzMsO8=
+before_install:
+  - chmod +x ./scripts/travis_install.sh
+  - chmod +x ./scripts/travis_script.sh
+  - chmod +x ./scripts/travis_after_success.sh
+install:
+  - ./scripts/travis_install.sh
+script:
+  - ./scripts/travis_script.sh
+after_success:
+  - ./scripts/travis_after_success.sh
