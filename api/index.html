@@ -115,64 +115,63 @@ npm run <span class="hljs-built_in">test</span>:ie
 					<li>Firefox 32+</li>
 					<li>Chrome 38+</li>
 				</ul>
+				<h2 id="bundle-for-the-browser">Bundle for the Browser</h2>
+				<p>Follow the package install instructions first.</p>
+				<pre><code class="lang-bash">npm install --save-dev browserify browserify-css
+browserify myapp.js -t browserify-css -o mybundle.js
+</code></pre>
 				<h2 id="usage-examples">Usage Examples</h2>
 				<p><strong>Note:</strong> This module is fully compatible with Node/Babel/ES6/ES5. Simply
 				omit the type declarations when using a language other than TypeScript.</p>
 				<p><strong>overrideCursor</strong></p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {
-  overrideCursor
-} from <span class="hljs-string">'phosphor-domutil'</span>;
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { overrideCursor } from <span class="hljs-string">'phosphor-domutil'</span>;
 
-<span class="hljs-comment">// overrideCursor returns a `disposable`</span>
-<span class="hljs-keyword">var</span> cursorDisposable = overrideCursor(<span class="hljs-string">'wait'</span>);
+<span class="hljs-comment">// force the cursor to be 'wait' for the entire document</span>
+<span class="hljs-keyword">var</span> override = overrideCursor(<span class="hljs-string">'wait'</span>);
 
-<span class="hljs-comment">// when you want to stop overriding the cursor, just dispose of it.</span>
-cursorDisposable.dispose();
+<span class="hljs-comment">// clear the override by disposing the return value</span>
+override.dispose();
 </code></pre>
 				<p><strong>hitTest</strong></p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {
-  hitTest
-} from <span class="hljs-string">'phosphor-domutil'</span>;
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { hitTest } from <span class="hljs-string">'phosphor-domutil'</span>;
 
-<span class="hljs-comment">// Set up a dummy test object, 100x100 at (0,0)</span>
-<span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-obj.style.position = <span class="hljs-string">'absolute'</span>;
-obj.style.left = <span class="hljs-string">'0px'</span>;
-obj.style.top = <span class="hljs-string">'0px'</span>;
-obj.width = <span class="hljs-number">100</span>;
-obj.height = <span class="hljs-number">100</span>;
-<span class="hljs-built_in">document</span>.body.appendChild(obj);
+<span class="hljs-comment">// Set up a dummy test node</span>
+<span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+div.style.position = <span class="hljs-string">'absolute'</span>;
+div.style.left = <span class="hljs-string">'0px'</span>;
+div.style.top = <span class="hljs-string">'0px'</span>;
+div.style.width = <span class="hljs-string">'100px'</span>;
+div.style.height = <span class="hljs-string">'100px'</span>;
+<span class="hljs-built_in">document</span>.body.appendChild(div);
 
-hitTest(obj, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>); <span class="hljs-comment">// true</span>
-hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150</span>); <span class="hljs-comment">// false</span>
+hitTest(div, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>);   <span class="hljs-comment">// true</span>
+hitTest(div, <span class="hljs-number">150</span>, <span class="hljs-number">150</span>); <span class="hljs-comment">// false</span>
 </code></pre>
 				<p><strong>boxSizing</strong></p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {
-  boxSizing
-} from <span class="hljs-string">'phosphor-domutil'</span>;
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { boxSizing } from <span class="hljs-string">'phosphor-domutil'</span>;
 
-<span class="hljs-comment">// Set up a dummy object</span>
-<span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-obj.style.position = <span class="hljs-string">'absolute'</span>;
-obj.style.borderTop = <span class="hljs-string">"solid 10px black"</span>;
-<span class="hljs-built_in">document</span>.body.appendChild(obj);
+<span class="hljs-comment">// Set up a dummy test node</span>
+<span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+div.style.position = <span class="hljs-string">'absolute'</span>;
+div.style.borderTop = <span class="hljs-string">'solid 10px black'</span>;
+<span class="hljs-built_in">document</span>.body.appendChild(div);
 
-<span class="hljs-keyword">var</span> sizing = boxSizing(obj);
-<span class="hljs-built_in">console</span>.log(sizing.borderTop); <span class="hljs-comment">// 10</span>
+<span class="hljs-keyword">var</span> sizing = boxSizing(div);
+sizing.borderTop;  <span class="hljs-comment">// 10</span>
+<span class="hljs-comment">// etc...</span>
 </code></pre>
 				<p><strong>sizeLimits</strong></p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {
-  sizeLimits
-} from <span class="hljs-string">'phosphor-domutil'</span>;
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { sizeLimits } from <span class="hljs-string">'phosphor-domutil'</span>;
 
-<span class="hljs-comment">// Set up dummy object</span>
-<span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-obj.style.position = <span class="hljs-string">'absolute'</span>;
-obj.style.minWidth = <span class="hljs-string">'90px'</span>;
-<span class="hljs-built_in">document</span>.body.appendChild(obj);
+<span class="hljs-comment">// Set up dummy test node</span>
+<span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+div.style.position = <span class="hljs-string">'absolute'</span>;
+div.style.minWidth = <span class="hljs-string">'90px'</span>;
+<span class="hljs-built_in">document</span>.body.appendChild(div);
 
-<span class="hljs-keyword">var</span> limits = sizeLimits(obj);
-<span class="hljs-built_in">console</span>.log(limits.minWidth); <span class="hljs-comment">// 90</span>
+<span class="hljs-keyword">var</span> limits = sizeLimits(div);
+limits.minWidth;  <span class="hljs-comment">// 90</span>
+<span class="hljs-comment">// etc...</span>
 </code></pre>
 			</div>
 		</div>
