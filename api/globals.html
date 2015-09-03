@@ -101,12 +101,13 @@
 					<div class="tsd-signature tsd-kind-icon">OVERRIDE_<wbr>CURSOR_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L19">index.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L22">index.ts:22</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The class name added to the document body on cursor override.</p>
+							<p><code>p-mod-override-cursor</code>: the class name added to the document body
+							during cursor override.</p>
 						</div>
 					</div>
 				</section>
@@ -123,7 +124,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L192">index.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L170">index.ts:170</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -136,22 +137,21 @@
 								<li>
 									<h5>node: <span class="tsd-signature-type">HTMLElement</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The HTMLElement for which to compute the box sizing.</p>
+										<p>The DOM node for which to compute the box sizing.</p>
 									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/iboxsizing.html" class="tsd-signature-type">IBoxSizing</a></h4>
-							<p>An object conforming to the IBoxSizing interface.</p>
+							<p>The box sizing data for the specified DOM node.</p>
 							<h4 id="example">Example</h4>
-							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-node.width = <span class="hljs-number">100</span>;
-node.height = <span class="hljs-number">100</span>;
+							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
 <span class="hljs-built_in">document</span>.body.appendChild(node);
 
 <span class="hljs-keyword">var</span> sizing = boxSizing(node);
+sizing.borderLeft;     <span class="hljs-comment">// 0</span>
+sizing.paddingBottom;  <span class="hljs-comment">// 0</span>
+<span class="hljs-comment">// etc...</span>
 </code></pre>
-							<h4 id="notes">Notes</h4>
-							<p>This has <code>O(1)</code> complexity.</p>
 						</li>
 					</ul>
 				</section>
@@ -159,13 +159,13 @@ node.height = <span class="hljs-number">100</span>;
 					<a name="hittest" class="tsd-anchor"></a>
 					<h3>hit<wbr>Test</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">hit<wbr>Test<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">hit<wbr>Test<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, clientX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, clientY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L81">index.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L83">index.ts:83</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -178,24 +178,24 @@ node.height = <span class="hljs-number">100</span>;
 								<li>
 									<h5>node: <span class="tsd-signature-type">HTMLElement</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The HTMLElement on which to test against.</p>
+										<p>The DOM node of interest.</p>
 									</div>
 								</li>
 								<li>
-									<h5>x: <span class="tsd-signature-type">number</span></h5>
+									<h5>clientX: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The x co-ordinate of the position to hit test.</p>
+										<p>The client X coordinate of interest.</p>
 									</div>
 								</li>
 								<li>
-									<h5>y: <span class="tsd-signature-type">number</span></h5>
+									<h5>clientY: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The y co-ordinate of the position to hit test.</p>
+										<p>The client Y coordinate of interest.</p>
 									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-							<p>A boolean, true if the x-y co-ordinates are within the node.</p>
+							<p><code>true</code> if the node covers the position, <code>false</code> otherwise.</p>
 							<h4 id="example">Example</h4>
 							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
 obj.style.position = <span class="hljs-string">'absolute'</span>;
@@ -205,11 +205,9 @@ obj.width = <span class="hljs-number">100</span>;
 obj.height = <span class="hljs-number">100</span>;
 <span class="hljs-built_in">document</span>.body.appendChild(obj);
 
-hitTest(obj, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>); <span class="hljs-comment">// true</span>
+hitTest(obj, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>);   <span class="hljs-comment">// true</span>
 hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150</span>); <span class="hljs-comment">// false</span>
 </code></pre>
-							<h4 id="notes">Notes</h4>
-							<p>This has <code>O(1)</code> complexity.</p>
 						</li>
 					</ul>
 				</section>
@@ -223,7 +221,7 @@ hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L37">index.ts:37</a></li>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L43">index.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -241,8 +239,10 @@ hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IDisposable</span></h4>
-							<p>An object conforming to the IDisposable interface which will clear
-							the override.</p>
+							<p>A disposable which will clear the override when disposed.</p>
+							<h4 id="notes">Notes</h4>
+							<p>The most recent call to <code>overrideCursor</code> takes precendence. Disposing
+							an old override is a no-op and will not effect the current override.</p>
 						</li>
 					</ul>
 				</section>
@@ -256,7 +256,7 @@ hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L241">index.ts:241</a></li>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L243">index.ts:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -274,17 +274,16 @@ hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/isizelimits.html" class="tsd-signature-type">ISizeLimits</a></h4>
-							<p>An object conforming to the ISizeLimits interface.</p>
+							<p>The size limit data for the specified DOM node.</p>
 							<h4 id="example">Example</h4>
-							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-obj.height = <span class="hljs-number">100</span>;
-obj.width = <span class="hljs-number">100</span>;
-<span class="hljs-built_in">document</span>.body.appendNode(obj);
+							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+<span class="hljs-built_in">document</span>.body.appendNode(node);
 
-<span class="hljs-keyword">var</span> limits = sizeLimits(obj);
+<span class="hljs-keyword">var</span> limits = sizeLimits(node);
+limits.minWidth;   <span class="hljs-comment">// 0</span>
+limits.maxHeight;  <span class="hljs-comment">// Infinity</span>
+<span class="hljs-comment">// etc...</span>
 </code></pre>
-							<h4 id="notes">Notes</h4>
-							<p>This has <code>O(1)</code> complexity.</p>
 						</li>
 					</ul>
 				</section>
