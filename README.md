@@ -108,3 +108,39 @@ Usage Examples
 
 **Note:** This module is fully compatible with Node/Babel/ES6/ES5. Simply
 omit the type declarations when using a language other than TypeScript.
+
+```typescript
+import { SplitPanel } from 'phosphor-splitpanel';
+
+import { Widget } from 'phosphor-widget';
+
+
+// Create some content for the panel.
+var w1 = new Widget();
+var w2 = new Widget();
+var w3 = new Widget();
+
+
+// Set the widget stretch factors (optional).
+SplitPanel.setStretch(w1, 0);
+SplitPanel.setStretch(w2, 2);
+SplitPanel.setStretch(w3, 1);
+
+
+// Setup the split panel.
+var sp = new SplitPanel();
+sp.orientation = SplitPanel.Horizontal;
+sp.handleSize = 5;
+sp.children = [w1, w2, w3];
+
+
+// sometime later...
+
+
+// Get the relative widget sizes.
+var size = sp.sizes();
+
+
+// Set the relative widget sizes.
+sp.setSizes([2, 4, 1]);
+```
