@@ -138,12 +138,10 @@ browserify myapp.js -t browserify-css -o mybundle.js
 <span class="hljs-keyword">var</span> w2 = <span class="hljs-keyword">new</span> Widget();
 <span class="hljs-keyword">var</span> w3 = <span class="hljs-keyword">new</span> Widget();
 
-
 <span class="hljs-comment">// Set the widget stretch factors (optional).</span>
 SplitPanel.setStretch(w1, <span class="hljs-number">0</span>);
 SplitPanel.setStretch(w2, <span class="hljs-number">2</span>);
 SplitPanel.setStretch(w3, <span class="hljs-number">1</span>);
-
 
 <span class="hljs-comment">// Setup the split panel.</span>
 <span class="hljs-keyword">var</span> sp = <span class="hljs-keyword">new</span> SplitPanel();
@@ -151,13 +149,10 @@ sp.orientation = SplitPanel.Horizontal;
 sp.handleSize = <span class="hljs-number">5</span>;
 sp.children = [w1, w2, w3];
 
-
 <span class="hljs-comment">// sometime later...</span>
-
 
 <span class="hljs-comment">// Get the relative widget sizes.</span>
 <span class="hljs-keyword">var</span> size = sp.sizes();
-
 
 <span class="hljs-comment">// Set the relative widget sizes.</span>
 sp.setSizes([<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>]);
