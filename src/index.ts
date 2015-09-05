@@ -513,7 +513,7 @@ class SplitPanel extends Widget {
     var width = offsetWidth - box.horizontalSum;
     var height = offsetHeight - box.verticalSum;
 
-    // Distribute the layout space and layout the widget items.
+    // Distribute the layout space and layout the items.
     var handleSize = this.handleSize;
     if (this.orientation === Orientation.Horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
@@ -692,7 +692,7 @@ function onOrientationChanged(owner: SplitPanel, old: Orientation, value: Orient
 
 
 /**
- * The change handler for the `handleSize` property.
+ * The change handler for the [[handleSizeProperty]].
  */
 function onHandleSizeChanged(owner: SplitPanel, old: number, value: number): void {
   postMessage(owner, MSG_LAYOUT_REQUEST);
