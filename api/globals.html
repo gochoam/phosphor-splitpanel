@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>phosphor-domutil</title>
+	<title>phosphor-splitpanel</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">phosphor-domutil</a>
+					<a href="index.html" class="title">phosphor-splitpanel</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -57,7 +57,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> phosphor-domutil</h1>
+			<h1> phosphor-splitpanel</h1>
 		</div>
 	</div>
 </header>
@@ -69,25 +69,26 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
+							<h3>Enumerations</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface"><a href="interfaces/iboxsizing.html" class="tsd-kind-icon">IBox<wbr>Sizing</a></li>
-								<li class="tsd-kind-interface"><a href="interfaces/isizelimits.html" class="tsd-kind-icon">ISize<wbr>Limits</a></li>
+								<li class="tsd-kind-enum"><a href="enums/orientation.html" class="tsd-kind-icon">Orientation</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class"><a href="classes/splitpanel.html" class="tsd-kind-icon">Split<wbr>Panel</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable"><a href="globals.html#override_cursor_class" class="tsd-kind-icon">OVERRIDE_<wbr>CURSOR_<wbr>CLASS</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Functions</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-function"><a href="globals.html#boxsizing" class="tsd-kind-icon">box<wbr>Sizing</a></li>
-								<li class="tsd-kind-function"><a href="globals.html#hittest" class="tsd-kind-icon">hit<wbr>Test</a></li>
-								<li class="tsd-kind-function"><a href="globals.html#overridecursor" class="tsd-kind-icon">override<wbr>Cursor</a></li>
-								<li class="tsd-kind-function"><a href="globals.html#sizelimits" class="tsd-kind-icon">size<wbr>Limits</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#hidden_class" class="tsd-kind-icon">HIDDEN_<wbr>CLASS</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#horizontal_class" class="tsd-kind-icon">HORIZONTAL_<wbr>CLASS</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#overlay_class" class="tsd-kind-icon">OVERLAY_<wbr>CLASS</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#split_handle_class" class="tsd-kind-icon">SPLIT_<wbr>HANDLE_<wbr>CLASS</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#split_panel_class" class="tsd-kind-icon">SPLIT_<wbr>PANEL_<wbr>CLASS</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#vertical_class" class="tsd-kind-icon">VERTICAL_<wbr>CLASS</a></li>
 							</ul>
 						</section>
 					</div>
@@ -96,196 +97,94 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable">
-					<a name="override_cursor_class" class="tsd-anchor"></a>
-					<h3>OVERRIDE_<wbr>CURSOR_<wbr>CLASS</h3>
-					<div class="tsd-signature tsd-kind-icon">OVERRIDE_<wbr>CURSOR_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="hidden_class" class="tsd-anchor"></a>
+					<h3>HIDDEN_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">HIDDEN_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L22">index.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L79">index.ts:79</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p><code>p-mod-override-cursor</code>: the class name added to the document body
-							during cursor override.</p>
+							<p><code>p-mod-hidden</code>: The class name added to hidden split handles.</p>
 						</div>
 					</div>
 				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="boxsizing" class="tsd-anchor"></a>
-					<h3>box<wbr>Sizing</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">box<wbr>Sizing<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/iboxsizing.html" class="tsd-signature-type">IBoxSizing</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L170">index.ts:170</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Compute the box sizing for a DOM node.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>node: <span class="tsd-signature-type">HTMLElement</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The DOM node for which to compute the box sizing.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="interfaces/iboxsizing.html" class="tsd-signature-type">IBoxSizing</a></h4>
-							<p>The box sizing data for the specified DOM node.</p>
-							<h4 id="example">Example</h4>
-							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
-<span class="hljs-built_in">document</span>.body.appendChild(node);
-
-<span class="hljs-keyword">var</span> sizing = boxSizing(node);
-sizing.borderLeft;     <span class="hljs-comment">// 0</span>
-sizing.paddingBottom;  <span class="hljs-comment">// 0</span>
-<span class="hljs-comment">// etc...</span>
-</code></pre>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="horizontal_class" class="tsd-anchor"></a>
+					<h3>HORIZONTAL_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">HORIZONTAL_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L67">index.ts:67</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><code>p-mod-horizontal</code>: the class name added to horizontal panels and handles.</p>
+						</div>
+					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="hittest" class="tsd-anchor"></a>
-					<h3>hit<wbr>Test</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">hit<wbr>Test<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, clientX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, clientY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L83">index.ts:83</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Test whether a client position lies within a node.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>node: <span class="tsd-signature-type">HTMLElement</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The DOM node of interest.</p>
-									</div>
-								</li>
-								<li>
-									<h5>clientX: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The client X coordinate of interest.</p>
-									</div>
-								</li>
-								<li>
-									<h5>clientY: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The client Y coordinate of interest.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-							<p><code>true</code> if the node covers the position, <code>false</code> otherwise.</p>
-							<h4 id="example">Example</h4>
-							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> obj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'img'</span>);
-obj.style.position = <span class="hljs-string">'absolute'</span>;
-obj.style.left = <span class="hljs-number">0</span>;
-obj.style.top = <span class="hljs-number">0</span>;
-obj.width = <span class="hljs-number">100</span>;
-obj.height = <span class="hljs-number">100</span>;
-<span class="hljs-built_in">document</span>.body.appendChild(obj);
-
-hitTest(obj, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>);   <span class="hljs-comment">// true</span>
-hitTest(obj, <span class="hljs-number">150</span>, <span class="hljs-number">150</span>); <span class="hljs-comment">// false</span>
-</code></pre>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="overlay_class" class="tsd-anchor"></a>
+					<h3>OVERLAY_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">OVERLAY_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L61">index.ts:61</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><code>p-SplitHandle-overlay</code>: the class name for a split handle overlay.</p>
+						</div>
+					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="overridecursor" class="tsd-anchor"></a>
-					<h3>override<wbr>Cursor</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">override<wbr>Cursor<span class="tsd-signature-symbol">(</span>cursor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDisposable</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L43">index.ts:43</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Override the cursor for the entire document.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>cursor: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The string representing the cursor style.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IDisposable</span></h4>
-							<p>A disposable which will clear the override when disposed.</p>
-							<h4 id="notes">Notes</h4>
-							<p>The most recent call to <code>overrideCursor</code> takes precendence. Disposing
-							an old override is a no-op and will not effect the current override.</p>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="split_handle_class" class="tsd-anchor"></a>
+					<h3>SPLIT_<wbr>HANDLE_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">SPLIT_<wbr>HANDLE_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L55">index.ts:55</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><code>p-SplitHandle</code>: the class name for a split handle.</p>
+						</div>
+					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="sizelimits" class="tsd-anchor"></a>
-					<h3>size<wbr>Limits</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">size<wbr>Limits<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/isizelimits.html" class="tsd-signature-type">ISizeLimits</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-domutil/blob/HEAD/src/index.ts#L243">index.ts:243</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Compute the size limits for a DOM node.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>node: <span class="tsd-signature-type">HTMLElement</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The node for which to compute the size limits.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="interfaces/isizelimits.html" class="tsd-signature-type">ISizeLimits</a></h4>
-							<p>The size limit data for the specified DOM node.</p>
-							<h4 id="example">Example</h4>
-							<pre><code class="lang-typescript"><span class="hljs-keyword">var</span> node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
-<span class="hljs-built_in">document</span>.body.appendNode(node);
-
-<span class="hljs-keyword">var</span> limits = sizeLimits(node);
-limits.minWidth;   <span class="hljs-comment">// 0</span>
-limits.maxHeight;  <span class="hljs-comment">// Infinity</span>
-<span class="hljs-comment">// etc...</span>
-</code></pre>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="split_panel_class" class="tsd-anchor"></a>
+					<h3>SPLIT_<wbr>PANEL_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">SPLIT_<wbr>PANEL_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L49">index.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><code>p-SplitPanel</code>: the class name added to SplitPanel instances.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="vertical_class" class="tsd-anchor"></a>
+					<h3>VERTICAL_<wbr>CLASS</h3>
+					<div class="tsd-signature tsd-kind-icon">VERTICAL_<wbr>CLASS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L73">index.ts:73</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><code>p-mod-vertical</code>: the class name added to vertical panels and handles.</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -299,26 +198,29 @@ limits.maxHeight;  <span class="hljs-comment">// Infinity</span>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/iboxsizing.html" class="tsd-kind-icon">IBox<wbr>Sizing</a>
+					<li class=" tsd-kind-enum">
+						<a href="enums/orientation.html" class="tsd-kind-icon">Orientation</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/isizelimits.html" class="tsd-kind-icon">ISize<wbr>Limits</a>
+					<li class=" tsd-kind-class">
+						<a href="classes/splitpanel.html" class="tsd-kind-icon">Split<wbr>Panel</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#override_cursor_class" class="tsd-kind-icon">OVERRIDE_<wbr>CURSOR_<wbr>CLASS</a>
+						<a href="globals.html#hidden_class" class="tsd-kind-icon">HIDDEN_<wbr>CLASS</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#boxsizing" class="tsd-kind-icon">box<wbr>Sizing</a>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#horizontal_class" class="tsd-kind-icon">HORIZONTAL_<wbr>CLASS</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#hittest" class="tsd-kind-icon">hit<wbr>Test</a>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#overlay_class" class="tsd-kind-icon">OVERLAY_<wbr>CLASS</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#overridecursor" class="tsd-kind-icon">override<wbr>Cursor</a>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#split_handle_class" class="tsd-kind-icon">SPLIT_<wbr>HANDLE_<wbr>CLASS</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#sizelimits" class="tsd-kind-icon">size<wbr>Limits</a>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#split_panel_class" class="tsd-kind-icon">SPLIT_<wbr>PANEL_<wbr>CLASS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#vertical_class" class="tsd-kind-icon">VERTICAL_<wbr>CLASS</a>
 					</li>
 				</ul>
 			</nav>
