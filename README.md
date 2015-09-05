@@ -69,6 +69,18 @@ npm run docs
 Navigate to `docs/index.html`.
 
 
+Build Example
+-------------
+
+Follow the source build instructions first.
+
+```bash
+npm run build:example
+```
+
+Navigate to `example/index.html`.
+
+
 Supported Runtimes
 ------------------
 
