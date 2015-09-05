@@ -1,8 +1,8 @@
 {
-  "module": "commonjs",
   "target": "ES5",
+  "module": "commonjs",
+  "moduleResolution": "node",
   "excludeNotExported": true,
-  "experimentalDecorators": true,
   "mode": "file",
   "out": "docs/api",
   "src": [
