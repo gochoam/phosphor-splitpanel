@@ -121,7 +121,7 @@ class SplitPanel extends Widget {
    */
   static orientationProperty = new Property<SplitPanel, Orientation>({
     value: Orientation.Horizontal,
-    changed: onOrientationChanged,
+    changed: (owner, old, value) => owner._onOrientationChanged(old, value),
   });
 
   /**
@@ -135,7 +135,7 @@ class SplitPanel extends Widget {
   static handleSizeProperty = new Property<SplitPanel, number>({
     value: 3,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: onHandleSizeChanged,
+    changed: owner => postMessage(owner, MSG_LAYOUT_REQUEST),
   });
 
   /**
@@ -667,6 +667,15 @@ class SplitPanel extends Widget {
   }
 
   /**
+   * The change handler for the [[orientationProperty]].
+   */
+  private _onOrientationChanged(old: Orientation, value: Orientation): void {
+    this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
+    this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
+    postMessage(this, MSG_LAYOUT_REQUEST);
+  }
+
+  /**
    * The handler for the child property changed signal.
    */
   private _onPropertyChanged(sender: Widget, args: IChangedArgs): void {
@@ -680,24 +689,6 @@ class SplitPanel extends Widget {
   private _sizers: BoxSizer[] = [];
   private _items: SplitItem[] = [];
   private _pressData: IPressData = null;
-}
-
-
-/**
- * The change handler for the [[orientationProperty]].
- */
-function onOrientationChanged(owner: SplitPanel, old: Orientation, value: Orientation): void {
-  owner.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
-  owner.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
-  postMessage(owner, MSG_LAYOUT_REQUEST);
-}
-
-
-/**
- * The change handler for the [[handleSizeProperty]].
- */
-function onHandleSizeChanged(owner: SplitPanel, old: number, value: number): void {
-  postMessage(owner, MSG_LAYOUT_REQUEST);
 }
 
 
