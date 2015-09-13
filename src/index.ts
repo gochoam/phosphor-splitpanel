@@ -36,7 +36,8 @@ import {
 
 import {
   ChildMessage, MSG_AFTER_ATTACH, MSG_BEFORE_DETACH, MSG_LAYOUT_REQUEST,
-  ResizeMessage, Widget
+  ResizeMessage, Widget, clearLayoutGeometry, getLayoutGeometry,
+  setLayoutGeometry
 } from 'phosphor-widget';
 
 import './index.css';
@@ -194,7 +195,6 @@ class SplitPanel extends Widget {
    */
   dispose(): void {
     this._releaseMouse();
-    this._items.length = 0;
     this._sizers.length = 0;
     super.dispose();
   }
@@ -304,12 +304,10 @@ class SplitPanel extends Widget {
    */
   protected onChildAdded(msg: ChildMessage): void {
     Property.getChanged(msg.child).connect(this._onPropertyChanged, this);
-    var item = createItem(msg.child, this.orientation);
     var sizer = createSizer(averageSize(this._sizers));
-    arrays.insert(this._items, msg.currentIndex, item);
     arrays.insert(this._sizers, msg.currentIndex, sizer);
-    this.node.appendChild(item.widget.node);
-    this.node.appendChild(item.handle.node);
+    this.node.appendChild(msg.child.node);
+    this.node.appendChild(getHandle(msg.child).node);
     if (this.isAttached) sendMessage(msg.child, MSG_AFTER_ATTACH);
     postMessage(this, MSG_LAYOUT_REQUEST);
   }
@@ -319,19 +317,18 @@ class SplitPanel extends Widget {
    */
   protected onChildRemoved(msg: ChildMessage): void {
     Property.getChanged(msg.child).disconnect(this._onPropertyChanged, this);
-    var item = arrays.removeAt(this._items, msg.previousIndex);
     arrays.removeAt(this._sizers, msg.previousIndex);
     if (this.isAttached) sendMessage(msg.child, MSG_BEFORE_DETACH);
-    this.node.removeChild(item.widget.node);
-    this.node.removeChild(item.handle.node);
+    this.node.removeChild(msg.child.node);
+    this.node.removeChild(getHandle(msg.child).node);
     postMessage(this, MSG_LAYOUT_REQUEST);
+    clearLayoutGeometry(msg.child);
   }
 
   /**
    * A message handler invoked on a `'child-moved'` message.
    */
   protected onChildMoved(msg: ChildMessage): void {
-    arrays.move(this._items, msg.previousIndex, msg.currentIndex);
     arrays.move(this._sizers, msg.previousIndex, msg.currentIndex);
     postMessage(this, MSG_LAYOUT_REQUEST);
   }
@@ -377,9 +374,14 @@ class SplitPanel extends Widget {
    */
   protected onResize(msg: ResizeMessage): void {
     if (this.isVisible) {
-      var width = msg.width < 0 ? this.node.offsetWidth : msg.width;
-      var height = msg.height < 0 ? this.node.offsetHeight : msg.height;
-      this._layoutItems(width, height);
+      var width = msg.width;
+      var height = msg.height;
+      if (width < 0 || height < 0) {
+        var geo = getLayoutGeometry(this);
+        if (width < 0) width = geo ? geo.width : this.node.offsetWidth;
+        if (height < 0) height = geo ? geo.height : this.node.offsetHeight;
+      }
+      this._layoutChildren(width, height);
     }
   }
 
@@ -388,7 +390,10 @@ class SplitPanel extends Widget {
    */
   protected onUpdateRequest(msg: Message): void {
     if (this.isVisible) {
-      this._layoutItems(this.node.offsetWidth, this.node.offsetHeight);
+      var geo = getLayoutGeometry(this);
+      var width = geo ? geo.width : this.node.offsetWidth;
+      var height = geo ? geo.height : this.node.offsetHeight;
+      this._layoutChildren(width, height);
     }
   }
 
@@ -402,25 +407,26 @@ class SplitPanel extends Widget {
   }
 
   /**
-   * Update the split items and size constraints of the panel.
+   * Update the size constraints of the panel.
    */
   private _setupGeometry(): void {
-    // Update the handles and track the visible item count.
+    // Update the handles and track the visible widget count.
     var visibleCount = 0;
     var orientation = this.orientation;
-    var lastVisibleItem: SplitItem = null;
-    for (var i = 0, n = this._items.length; i < n; ++i) {
-      var item = this._items[i];
-      item.handle.hidden = item.widget.hidden;
-      item.handle.orientation = orientation;
-      if (!item.widget.hidden) {
-        lastVisibleItem = item;
+    var lastVisibleHandle: SplitHandle = null;
+    for (var i = 0, n = this.childCount; i < n; ++i) {
+      var widget = this.childAt(i);
+      var handle = getHandle(widget);
+      handle.hidden = widget.hidden;
+      handle.orientation = orientation;
+      if (!handle.hidden) {
+        lastVisibleHandle = handle;
         visibleCount++;
       }
     }
 
     // Hide the last visible handle and update the fixed space.
-    if (lastVisibleItem) lastVisibleItem.handle.hidden = true;
+    if (lastVisibleHandle) lastVisibleHandle.hidden = true;
     this._fixedSpace = this.handleSize * Math.max(0, visibleCount - 1);
 
     // Compute new size constraints for the split panel.
@@ -431,19 +437,19 @@ class SplitPanel extends Widget {
     if (orientation === Orientation.Horizontal) {
       minW = this._fixedSpace;
       maxW = visibleCount > 0 ? minW : maxW;
-      for (var i = 0, n = this._items.length; i < n; ++i) {
-        var item = this._items[i];
+      for (var i = 0, n = this.childCount; i < n; ++i) {
+        var widget = this.childAt(i);
         var sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
         }
-        if (item.widget.hidden) {
+        if (widget.hidden) {
           sizer.minSize = 0;
           sizer.maxSize = 0;
           continue;
         }
-        var limits = sizeLimits(item.widget.node);
-        sizer.stretch = SplitPanel.getStretch(item.widget);
+        var limits = sizeLimits(widget.node);
+        sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minWidth;
         sizer.maxSize = limits.maxWidth;
         minW += limits.minWidth;
@@ -454,19 +460,19 @@ class SplitPanel extends Widget {
     } else {
       minH = this._fixedSpace;
       maxH = visibleCount > 0 ? minH : maxH;
-      for (var i = 0, n = this._items.length; i < n; ++i) {
-        var item = this._items[i];
+      for (var i = 0, n = this.childCount; i < n; ++i) {
+        var widget = this.childAt(i);
         var sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
         }
-        if (item.widget.hidden) {
+        if (widget.hidden) {
           sizer.minSize = 0;
           sizer.maxSize = 0;
           continue;
         }
-        var limits = sizeLimits(item.widget.node);
-        sizer.stretch = SplitPanel.getStretch(item.widget);
+        var limits = sizeLimits(widget.node);
+        sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minHeight;
         sizer.maxSize = limits.maxHeight;
         minH += limits.minHeight;
@@ -498,11 +504,11 @@ class SplitPanel extends Widget {
   }
 
   /**
-   * Layout the items using the given offset width and height.
+   * Layout the children using the given offset width and height.
    */
-  private _layoutItems(offsetWidth: number, offsetHeight: number): void {
-    // Bail early if their are no items to arrange.
-    if (this._items.length === 0) {
+  private _layoutChildren(offsetWidth: number, offsetHeight: number): void {
+    // Bail early if their are no children to arrange.
+    if (this.childCount === 0) {
       return;
     }
 
@@ -519,26 +525,34 @@ class SplitPanel extends Widget {
     var handleSize = this.handleSize;
     if (this.orientation === Orientation.Horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
-      for (var i = 0, n = this._items.length; i < n; ++i) {
-        var item = this._items[i];
-        if (item.widget.hidden) {
+      for (var i = 0, n = this.childCount; i < n; ++i) {
+        var widget = this.childAt(i);
+        if (widget.hidden) {
           continue;
         }
         var size = this._sizers[i].size;
-        item.layoutWidget(left, top, size, height);
-        item.layoutHandle(left + size, top, handleSize, height);
+        var hStyle = getHandle(widget).node.style;
+        setLayoutGeometry(widget, left, top, size, height);
+        hStyle.top = top + 'px';
+        hStyle.left = left + size + 'px';
+        hStyle.width = handleSize + 'px';
+        hStyle.height = height + 'px';
         left += size + handleSize;
       }
     } else {
       boxCalc(this._sizers, Math.max(0, height - this._fixedSpace));
-      for (var i = 0, n = this._items.length; i < n; ++i) {
-        var item = this._items[i];
-        if (item.widget.hidden) {
+      for (var i = 0, n = this.childCount; i < n; ++i) {
+        var widget = this.childAt(i);
+        if (widget.hidden) {
           continue;
         }
         var size = this._sizers[i].size;
-        item.layoutWidget(left, top, width, size);
-        item.layoutHandle(left, top + size, width, handleSize);
+        var hStyle = getHandle(widget).node.style;
+        setLayoutGeometry(widget, left, top, width, size);
+        hStyle.top = top + size + 'px';
+        hStyle.left = left + 'px';
+        hStyle.width = width + 'px';
+        hStyle.height = handleSize + 'px';
         top += size + handleSize;
       }
     }
@@ -560,7 +574,7 @@ class SplitPanel extends Widget {
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
     var delta: number;
-    var node = this._items[index].handle.node;
+    var node = getHandle(this.childAt(index)).node;
     if (this.orientation === Orientation.Horizontal) {
       delta = event.clientX - node.getBoundingClientRect().left;
     } else {
@@ -617,17 +631,21 @@ class SplitPanel extends Widget {
    */
   private _moveHandle(index: number, pos: number): void {
     // Bail if the handle is invalid or hidden.
-    var item = this._items[index];
-    if (!item || item.handle.hidden) {
+    var widget = this.childAt(index);
+    if (!widget) {
+      return;
+    }
+    var handle = getHandle(widget);
+    if (handle.hidden) {
       return;
     }
 
     // Compute the delta movement for the handle.
     var delta: number;
     if (this.orientation === Orientation.Horizontal) {
-      delta = pos - item.handle.node.offsetLeft;
+      delta = pos - handle.node.offsetLeft;
     } else {
-      delta = pos - item.handle.node.offsetTop;
+      delta = pos - handle.node.offsetTop;
     }
     if (delta === 0) {
       return;
@@ -636,9 +654,7 @@ class SplitPanel extends Widget {
     // Prevent item resizing unless needed.
     for (var i = 0, n = this._sizers.length; i < n; ++i) {
       var sizer = this._sizers[i];
-      if (sizer.size > 0) {
-        sizer.sizeHint = sizer.size;
-      }
+      if (sizer.size > 0) sizer.sizeHint = sizer.size;
     }
 
     // Adjust the sizers to reflect the movement.
@@ -660,8 +676,9 @@ class SplitPanel extends Widget {
    * Find the index of the split handle which contains the given target.
    */
   private _findHandleIndex(target: HTMLElement): number {
-    for (var i = 0, n = this._items.length; i < n; ++i) {
-      if (this._items[i].handle.node.contains(target)) return i;
+    for (var i = 0, n = this.childCount; i < n; ++i) {
+      var handle = getHandle(this.childAt(i));
+      if (handle.node.contains(target)) return i;
     }
     return -1;
   }
@@ -687,7 +704,6 @@ class SplitPanel extends Widget {
   private _fixedSpace = 0;
   private _box: IBoxSizing = null;
   private _sizers: BoxSizer[] = [];
-  private _items: SplitItem[] = [];
   private _pressData: IPressData = null;
 }
 
@@ -731,10 +747,10 @@ class SplitHandle extends NodeWrapper {
   /**
    * Construct a new split handle.
    */
-  constructor(orientation: Orientation) {
+  constructor() {
     super();
     this.addClass(SPLIT_HANDLE_CLASS);
-    this.orientation = orientation;
+    this.addClass(HORIZONTAL_CLASS);
   }
 
   /**
@@ -775,104 +791,23 @@ class SplitHandle extends NodeWrapper {
   }
 
   private _hidden = false;
-  private _orientation: Orientation = void 0;
+  private _orientation = Orientation.Horizontal;
 }
 
 
 /**
- * A class which assists with the layout of a widget and split handle.
+ * A private attached property for the split handle for a widget.
  */
-class SplitItem {
-  /**
-   * Construct a new split item.
-   */
-  constructor(widget: Widget, handle: SplitHandle) {
-    this._widget = widget;
-    this._handle = handle;
-  }
-
-  /**
-   * Get the widget for the item.
-   */
-  get widget(): Widget {
-    return this._widget;
-  }
-
-  /**
-   * Get the split handle for the item.
-   */
-  get handle(): SplitHandle {
-    return this._handle;
-  }
-
-  /**
-   * Update the layout geometry for the widget.
-   */
-  layoutWidget(left: number, top: number, width: number, height: number): void {
-    var resized = false;
-    var style = this._widget.node.style;
-    if (left !== this._left) {
-      this._left = left;
-      style.left = left + 'px';
-    }
-    if (top !== this._top) {
-      this._top = top;
-      style.top = top + 'px';
-    }
-    if (width !== this._width) {
-      resized = true;
-      this._width = width;
-      style.width = width + 'px';
-    }
-    if (height !== this._height) {
-      resized = true;
-      this._height = height;
-      style.height = height + 'px';
-    }
-    if (resized) sendMessage(this._widget, new ResizeMessage(width, height));
-  }
-
-  /**
-   * Update the layout geometry for the handle.
-   */
-  layoutHandle(left: number, top: number, width: number, height: number): void {
-    var style = this._handle.node.style;
-    if (left !== this._handleLeft) {
-      this._handleLeft = left;
-      style.left = left + 'px';
-    }
-    if (top !== this._handleTop) {
-      this._handleTop = top;
-      style.top = top + 'px';
-    }
-    if (width !== this._handleWidth) {
-      this._handleWidth = width;
-      style.width = width + 'px';
-    }
-    if (height !== this._handleHeight) {
-      this._handleHeight = height;
-      style.height = height + 'px';
-    }
-  }
-
-  private _widget: Widget;
-  private _handle: SplitHandle;
-  private _top = NaN;
-  private _left = NaN;
-  private _width = NaN;
-  private _height = NaN;
-  private _handleTop = NaN;
-  private _handleLeft = NaN;
-  private _handleWidth = NaN;
-  private _handleHeight = NaN;
-}
+var splitHandleProperty = new Property<Widget, SplitHandle>({
+  create: owner => new SplitHandle(),
+});
 
 
 /**
- * Create a new split item with the given widget and orientation.
+ * Lookup the split handle for the given widget.
  */
-function createItem(widget: Widget, orientation: Orientation): SplitItem {
-  return new SplitItem(widget, new SplitHandle(orientation));
+function getHandle(widget: Widget): SplitHandle {
+  return splitHandleProperty.get(widget);
 }
 
 
