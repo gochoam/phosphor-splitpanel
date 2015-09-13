@@ -19,7 +19,7 @@ import {
 } from 'phosphor-disposable';
 
 import {
-  IBoxSizing, boxSizing, overrideCursor, sizeLimits
+  overrideCursor
 } from 'phosphor-domutil';
 
 import {
@@ -36,8 +36,7 @@ import {
 
 import {
   ChildMessage, MSG_AFTER_ATTACH, MSG_BEFORE_DETACH, MSG_LAYOUT_REQUEST,
-  ResizeMessage, Widget, clearLayoutGeometry, getLayoutGeometry,
-  setLayoutGeometry
+  ResizeMessage, Widget
 } from 'phosphor-widget';
 
 import './index.css';
@@ -316,7 +315,7 @@ class SplitPanel extends Widget {
     this.node.removeChild(msg.child.node);
     this.node.removeChild(getHandle(msg.child).node);
     postMessage(this, MSG_LAYOUT_REQUEST);
-    clearLayoutGeometry(msg.child);
+    msg.child.clearOffsetGeometry();
   }
 
   /**
@@ -368,14 +367,12 @@ class SplitPanel extends Widget {
    */
   protected onResize(msg: ResizeMessage): void {
     if (this.isVisible) {
-      var width = msg.width;
-      var height = msg.height;
-      if (width < 0 || height < 0) {
-        var geo = getLayoutGeometry(this);
-        if (width < 0) width = geo ? geo.width : this.node.offsetWidth;
-        if (height < 0) height = geo ? geo.height : this.node.offsetHeight;
+      if (msg.width < 0 || msg.height < 0) {
+        var rect = this.offsetRect;
+        this._layoutChildren(rect.width, rect.height);
+      } else {
+        this._layoutChildren(msg.width, msg.height);
       }
-      this._layoutChildren(width, height);
     }
   }
 
@@ -384,10 +381,8 @@ class SplitPanel extends Widget {
    */
   protected onUpdateRequest(msg: Message): void {
     if (this.isVisible) {
-      var geo = getLayoutGeometry(this);
-      var width = geo ? geo.width : this.node.offsetWidth;
-      var height = geo ? geo.height : this.node.offsetHeight;
-      this._layoutChildren(width, height);
+      var rect = this.offsetRect;
+      this._layoutChildren(rect.width, rect.height);
     }
   }
 
@@ -442,7 +437,7 @@ class SplitPanel extends Widget {
           sizer.maxSize = 0;
           continue;
         }
-        var limits = sizeLimits(widget.node);
+        var limits = widget.sizeLimits;
         sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minWidth;
         sizer.maxSize = limits.maxWidth;
@@ -465,7 +460,7 @@ class SplitPanel extends Widget {
           sizer.maxSize = 0;
           continue;
         }
-        var limits = sizeLimits(widget.node);
+        var limits = widget.sizeLimits;
         sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minHeight;
         sizer.maxSize = limits.maxHeight;
@@ -477,18 +472,14 @@ class SplitPanel extends Widget {
     }
 
     // Add the box sizing to the size constraints.
-    var box = this._box = boxSizing(this.node);
+    var box = this.boxSizing;
     minW += box.horizontalSum;
     minH += box.verticalSum;
     maxW += box.horizontalSum;
     maxH += box.verticalSum;
 
-    // Update the inline style size constraints.
-    var style = this.node.style;
-    style.minWidth = minW + 'px';
-    style.minHeight = minH + 'px';
-    style.maxWidth = maxW < Infinity ? maxW + 'px' : '';
-    style.maxHeight = maxH < Infinity ? maxH + 'px' : '';
+    // Update the panel's size constraints.
+    this.setSizeLimits(minW, minH, maxW, maxH);
 
     // Notifiy the parent that it should relayout.
     if (this.parent) sendMessage(this.parent, MSG_LAYOUT_REQUEST);
@@ -506,10 +497,8 @@ class SplitPanel extends Widget {
       return;
     }
 
-    // Ensure the box sizing is computed for the panel.
-    var box = this._box || (this._box = boxSizing(this.node));
-
     // Compute the actual layout bounds adjusted for border and padding.
+    var box = this.boxSizing;
     var top = box.paddingTop;
     var left = box.paddingLeft;
     var width = offsetWidth - box.horizontalSum;
@@ -539,7 +528,7 @@ class SplitPanel extends Widget {
         }
         var size = this._sizers[i].size;
         var hStyle = getHandle(widget).node.style;
-        setLayoutGeometry(widget, left, top, size, height);
+        widget.setOffsetGeometry(left, top, size, height);
         hStyle.top = top + 'px';
         hStyle.left = left + size + 'px';
         hStyle.width = handleSize + 'px';
@@ -555,7 +544,7 @@ class SplitPanel extends Widget {
         }
         var size = this._sizers[i].size;
         var hStyle = getHandle(widget).node.style;
-        setLayoutGeometry(widget, left, top, width, size);
+        widget.setOffsetGeometry(left, top, width, size);
         hStyle.top = top + size + 'px';
         hStyle.left = left + 'px';
         hStyle.width = width + 'px';
@@ -710,7 +699,6 @@ class SplitPanel extends Widget {
 
   private _fixedSpace = 0;
   private _pendingSizes = false;
-  private _box: IBoxSizing = null;
   private _sizers: BoxSizer[] = [];
   private _pressData: IPressData = null;
 }
