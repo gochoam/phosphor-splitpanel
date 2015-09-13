@@ -258,20 +258,14 @@ class SplitPanel extends Widget {
    * Extra values are ignored, too few will yield an undefined layout.
    */
   setSizes(sizes: number[]): void {
-    var totalSize: number;
-    if (this.orientation === Orientation.Horizontal) {
-      totalSize = this.node.clientWidth - this._fixedSpace;
-    } else {
-      totalSize = this.node.clientHeight - this._fixedSpace;
-    }
-    var normSizes = normalize(sizes);
-    var n = Math.min(this._sizers.length, normSizes.length);
-    for (var i = 0; i < n; ++i) {
-      var hint = Math.round(normSizes[i] * totalSize);
+    var normed = normalize(sizes);
+    for (var i = 0, n = this._sizers.length; i < n; ++i) {
+      var hint = Math.max(0, normed[i] || 0);
       var sizer = this._sizers[i];
       sizer.sizeHint = hint;
       sizer.size = hint;
     }
+    this._pendingSizes = true;
     this.update();
   }
 
@@ -521,9 +515,22 @@ class SplitPanel extends Widget {
     var width = offsetWidth - box.horizontalSum;
     var height = offsetHeight - box.verticalSum;
 
+    // Fetch whether the orientation is horizontal.
+    var horizontal = this.orientation === Orientation.Horizontal;
+
+    // Update the sizer hints if there is a pending `setSizes`.
+    if (this._pendingSizes) {
+      var space = horizontal ? width : height;
+      var adjusted = Math.max(0, space - this._fixedSpace);
+      for (var i = 0, n = this._sizers.length; i < n; ++i) {
+        this._sizers[i].sizeHint *= adjusted;
+      }
+      this._pendingSizes = false;
+    }
+
     // Distribute the layout space and layout the items.
     var handleSize = this.handleSize;
-    if (this.orientation === Orientation.Horizontal) {
+    if (horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
       for (var i = 0, n = this.childCount; i < n; ++i) {
         var widget = this.childAt(i);
@@ -702,6 +709,7 @@ class SplitPanel extends Widget {
   }
 
   private _fixedSpace = 0;
+  private _pendingSizes = false;
   private _box: IBoxSizing = null;
   private _sizers: BoxSizer[] = [];
   private _pressData: IPressData = null;
