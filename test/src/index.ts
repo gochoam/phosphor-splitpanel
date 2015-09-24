@@ -426,6 +426,49 @@ describe('phosphor-splitpanel', () => {
           done();
         });
       });
+
+      it('should ignore a non-left click on mouseup', (done) => {
+        var panel = new LogPanel();
+        var widget0 = new Widget();
+        var widget1 = new Widget();
+        panel.children = [widget0, widget1];
+        panel.orientation = Orientation.Vertical;
+        attachWidget(panel, document.body);
+        requestAnimationFrame(() => {
+          var handle = panel.node.children[1] as HTMLElement;
+          var left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove', { clientY: 10 });
+          triggerMouseEvent(handle, 'mouseup', { button: 1 });
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
+      it('should be a no-op if we do not move', (done) => {
+        var panel = new LogPanel();
+        var widget0 = new Widget();
+        var widget1 = new Widget();
+        panel.children = [widget0, widget1];
+        panel.orientation = Orientation.Vertical;
+        attachWidget(panel, document.body);
+        requestAnimationFrame(() => {
+          var handle = panel.node.children[1] as HTMLElement;
+          var left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove');
+          triggerMouseEvent(handle, 'mouseup');
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
     });
 
     describe('#onChildAdded()', () => {
