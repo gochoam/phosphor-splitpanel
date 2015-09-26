@@ -10,7 +10,7 @@
 import expect = require('expect.js');
 
 import {
-  Message, postMessage, sendMessage
+  Message, clearMessageData, postMessage, sendMessage
 } from 'phosphor-messaging';
 
 import {
@@ -154,7 +154,6 @@ describe('phosphor-splitpanel', () => {
 
       it('should post `layout-request`', (done) => {
         var panel = new LogPanel();
-        attachWidget(panel, document.body);
         SplitPanel.orientationProperty.set(panel, Orientation.Vertical);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
@@ -177,7 +176,6 @@ describe('phosphor-splitpanel', () => {
 
       it('should post `layout-request`', (done) => {
         var panel = new LogPanel();
-        attachWidget(panel, document.body);
         SplitPanel.handleSizeProperty.set(panel, 4);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
@@ -196,6 +194,19 @@ describe('phosphor-splitpanel', () => {
       it('should default to 0', () => {
         var widget = new Widget();
         expect(SplitPanel.stretchProperty.get(widget)).to.be(0);
+      });
+
+      it('should post `layout-request`', (done) => {
+        var panel = new LogPanel();
+        var widget = new Widget();
+        panel.addChild(widget);
+        clearMessageData(panel);
+        SplitPanel.stretchProperty.set(widget, 4);
+        expect(panel.messages.indexOf('layout-request')).to.be(-1);
+        requestAnimationFrame(() => {
+          expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
+          done();
+        });
       });
 
     });
@@ -308,8 +319,8 @@ describe('phosphor-splitpanel', () => {
         var widget1 = new Widget();
         panel.children = [widget0, widget1];
         expect(panel.sizes()).to.eql([0.5, 0.5]);
-        panel.setSizes([0.1, 0.9]);
-        expect(panel.sizes()).to.eql([0.1, 0.9]);
+        panel.setSizes([2, 3]);
+        expect(panel.sizes()).to.eql([0.4, 0.6]);
       });
 
     });
@@ -322,7 +333,7 @@ describe('phosphor-splitpanel', () => {
         var widget1 = new Widget();
         panel.children = [widget0, widget1];
         attachWidget(panel, document.body);
-        panel.setSizes([0.2, 0.8]);
+        panel.setSizes([1, 4]);
         expect(panel.sizes()).to.eql([0.2, 0.8]);
       });
 
@@ -504,7 +515,7 @@ describe('phosphor-splitpanel', () => {
           done();
         });
       });
-      
+
     });
 
     describe('#onChildMoved()', () => {
@@ -525,7 +536,7 @@ describe('phosphor-splitpanel', () => {
           done();
         });
       });
-      
+
     });
 
     describe('#onAfterShow()', () => {
@@ -538,7 +549,7 @@ describe('phosphor-splitpanel', () => {
         panel.hidden = false;
         expect(panel.messages.indexOf('after-show')).to.not.be(-1);
       });
-      
+
     });
 
     describe('#onAfterAttach()', () => {
@@ -565,7 +576,7 @@ describe('phosphor-splitpanel', () => {
         attachWidget(top, document.body);
         expect(panel.messages.indexOf('after-attach')).to.not.be(-1);
       });
-      
+
     });
 
     describe('#onBeforeDetach()', () => {
@@ -576,7 +587,7 @@ describe('phosphor-splitpanel', () => {
         detachWidget(panel);
         expect(panel.messages.indexOf('before-detach')).to.not.be(-1);
       });
-      
+
     });
 
     describe('#onChildShown()', () => {
@@ -594,7 +605,7 @@ describe('phosphor-splitpanel', () => {
           done();
         });
       });
-      
+
     });
 
     describe('#onChildHidden()', () => {
@@ -611,7 +622,7 @@ describe('phosphor-splitpanel', () => {
           done();
         });
       });
-      
+
     });
 
     describe('#onResize()', () => {
@@ -625,7 +636,7 @@ describe('phosphor-splitpanel', () => {
         sendMessage(panel, message);
         expect(panel.messages.indexOf('resize')).to.not.be(-1);
       });
-      
+
       it('should be handle an unknown size', () => {
         var panel = new LogPanel();
         var widget = new Widget();
