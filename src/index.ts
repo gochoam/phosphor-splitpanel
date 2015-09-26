@@ -31,7 +31,7 @@ import {
 } from 'phosphor-nodewrapper';
 
 import {
-  IChangedArgs, Property
+  Property
 } from 'phosphor-properties';
 
 import {
@@ -150,6 +150,7 @@ class SplitPanel extends Widget {
   static stretchProperty = new Property<Widget, number>({
     value: 0,
     coerce: (owner, value) => Math.max(0, value | 0),
+    changed: onStretchChanged,
   });
 
   /**
@@ -296,7 +297,6 @@ class SplitPanel extends Widget {
    * A message handler invoked on a `'child-added'` message.
    */
   protected onChildAdded(msg: ChildMessage): void {
-    Property.getChanged(msg.child).connect(this._onPropertyChanged, this);
     var sizer = createSizer(averageSize(this._sizers));
     arrays.insert(this._sizers, msg.currentIndex, sizer);
     this.node.appendChild(msg.child.node);
@@ -309,7 +309,6 @@ class SplitPanel extends Widget {
    * A message handler invoked on a `'child-removed'` message.
    */
   protected onChildRemoved(msg: ChildMessage): void {
-    Property.getChanged(msg.child).disconnect(this._onPropertyChanged, this);
     arrays.removeAt(this._sizers, msg.previousIndex);
     if (this.isAttached) sendMessage(msg.child, MSG_BEFORE_DETACH);
     this.node.removeChild(msg.child.node);
@@ -688,15 +687,6 @@ class SplitPanel extends Widget {
     postMessage(this, MSG_LAYOUT_REQUEST);
   }
 
-  /**
-   * The handler for the child property changed signal.
-   */
-  private _onPropertyChanged(sender: Widget, args: IChangedArgs): void {
-    if (args.property === SplitPanel.stretchProperty) {
-      postMessage(this, MSG_LAYOUT_REQUEST);
-    }
-  }
-
   private _fixedSpace = 0;
   private _pendingSizes = false;
   private _sizers: BoxSizer[] = [];
@@ -804,6 +794,16 @@ var splitHandleProperty = new Property<Widget, SplitHandle>({
  */
 function getHandle(widget: Widget): SplitHandle {
   return splitHandleProperty.get(widget);
+}
+
+
+/**
+ * The change handler for the stretch attached property.
+ */
+function onStretchChanged(child: Widget, old: number, value: number): void {
+  if (child.parent instanceof SplitPanel) {
+    postMessage(child.parent, MSG_LAYOUT_REQUEST);
+  }
 }
 
 
