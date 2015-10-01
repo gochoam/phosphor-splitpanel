@@ -10,7 +10,7 @@
 import expect = require('expect.js');
 
 import {
-  Message, clearMessageData, postMessage, sendMessage
+  Message, clearMessageData, sendMessage
 } from 'phosphor-messaging';
 
 import {
@@ -55,7 +55,7 @@ class LogWidget extends Widget {
 }
 
 
-function triggerMouseEvent (node: HTMLElement, eventType: string, options: any={}) {
+function triggerMouseEvent(node: HTMLElement, eventType: string, options: any={}) {
   options.bubbles = true;
   var clickEvent = new MouseEvent(eventType, options);
   node.dispatchEvent(clickEvent);
