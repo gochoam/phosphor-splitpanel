@@ -22,8 +22,7 @@ import {
 } from 'phosphor-widget';
 
 import {
-  HIDDEN_CLASS, HORIZONTAL_CLASS, OVERLAY_CLASS, SPLIT_HANDLE_CLASS,
-  SPLIT_PANEL_CLASS, VERTICAL_CLASS, Orientation, SplitPanel
+  Orientation, SplitPanel
 } from '../../lib/index';
 
 
@@ -40,7 +39,6 @@ class LogPanel extends SplitPanel {
     super.handleEvent(event);
     this.messages.push(event.type);
   }
-
 }
 
 
@@ -55,7 +53,7 @@ class LogWidget extends Widget {
 }
 
 
-function triggerMouseEvent(node: HTMLElement, eventType: string, options: any={}) {
+function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = {}) {
   options.bubbles = true;
   var clickEvent = new MouseEvent(eventType, options);
   node.dispatchEvent(clickEvent);
@@ -64,56 +62,47 @@ function triggerMouseEvent(node: HTMLElement, eventType: string, options: any={}
 
 describe('phosphor-splitpanel', () => {
 
-
-  describe('HIDDEN_CLASS', () => {
-
-    it('should equal `p-mod-hidden`', () => {
-      expect(HIDDEN_CLASS).to.be('p-mod-hidden');
-    });
-
-  });
-
-  describe('HORIZONTAL_CLASS', () => {
-
-    it('should equal `p-mod-horizontal`', () => {
-      expect(HORIZONTAL_CLASS).to.be('p-mod-horizontal');
-    });
-
-  });
-
-  describe('OVERLAY_CLASS', () => {
-
-    it('should equal `p-SplitHandle-overlay`', () => {
-      expect(OVERLAY_CLASS).to.be('p-SplitHandle-overlay');
-    });
-
-  });
-
-  describe('SPLIT_HANDLE_CLASS', () => {
-
-    it('should equal `p-SplitHandle`', () => {
-      expect(SPLIT_HANDLE_CLASS).to.be('p-SplitHandle');
-    });
-
-  });
-
-  describe('SPLIT_PANEL_CLASS', () => {
-
-    it('should equal `p-SplitPanel`', () => {
-      expect(SPLIT_PANEL_CLASS).to.be('p-SplitPanel');
-    });
-
-  });
-
-  describe('VERTICAL_CLASS', () => {
-
-    it('should equal `p-mod-vertical`', () => {
-      expect(VERTICAL_CLASS).to.be('p-mod-vertical');
-    });
-
-  });
-
   describe('SplitPanel', () => {
+
+    describe('.p_SplitPanel', () => {
+
+      it('should equal `p-SplitPanel`', () => {
+        expect(SplitPanel.p_SplitPanel).to.be('p-SplitPanel');
+      });
+
+    });
+
+    describe('.p_SplitHandle', () => {
+
+      it('should equal `p-SplitHandle`', () => {
+        expect(SplitPanel.p_SplitHandle).to.be('p-SplitHandle');
+      });
+
+    });
+
+    describe('.p_SplitHandle_overlay', () => {
+
+      it('should equal `p-SplitHandle-overlay`', () => {
+        expect(SplitPanel.p_SplitHandle_overlay).to.be('p-SplitHandle-overlay');
+      });
+
+    });
+
+    describe('.p_mod_horizontal', () => {
+
+      it('should equal `p-mod-horizontal`', () => {
+        expect(SplitPanel.p_mod_horizontal).to.be('p-mod-horizontal');
+      });
+
+    });
+
+    describe('.p_mod_vertical', () => {
+
+      it('should equal `p-mod-vertical`', () => {
+        expect(SplitPanel.p_mod_vertical).to.be('p-mod-vertical');
+      });
+
+    });
 
     describe('.Horizontal', () => {
 
@@ -143,16 +132,16 @@ describe('phosphor-splitpanel', () => {
         expect(orientation).to.be(Orientation.Horizontal);
       });
 
-      it('should toggle the presence of `HORIZONTAL_CLASS`', () => {
+      it('should toggle the orientation classes', () => {
         var panel = new SplitPanel();
-        expect(panel.hasClass(HORIZONTAL_CLASS)).to.be(true);
-        expect(panel.hasClass(VERTICAL_CLASS)).to.be(false);
+        expect(panel.hasClass(SplitPanel.p_mod_horizontal)).to.be(true);
+        expect(panel.hasClass(SplitPanel.p_mod_vertical)).to.be(false);
         SplitPanel.orientationProperty.set(panel, Orientation.Vertical);
-        expect(panel.hasClass(HORIZONTAL_CLASS)).to.be(false);
-        expect(panel.hasClass(VERTICAL_CLASS)).to.be(true);
+        expect(panel.hasClass(SplitPanel.p_mod_horizontal)).to.be(false);
+        expect(panel.hasClass(SplitPanel.p_mod_vertical)).to.be(true);
       });
 
-      it('should post `layout-request`', (done) => {
+      it('should post a `layout-request`', (done) => {
         var panel = new LogPanel();
         SplitPanel.orientationProperty.set(panel, Orientation.Vertical);
         requestAnimationFrame(() => {

@@ -43,43 +43,6 @@ import './index.css';
 
 
 /**
- * `p-SplitPanel`: the class name added to SplitPanel instances.
- */
-export
-const SPLIT_PANEL_CLASS = 'p-SplitPanel';
-
-/**
- * `p-SplitHandle`: the class name for a split handle.
- */
-export
-const SPLIT_HANDLE_CLASS = 'p-SplitHandle';
-
-/**
- * `p-SplitHandle-overlay`: the class name for a split handle overlay.
- */
-export
-const OVERLAY_CLASS = 'p-SplitHandle-overlay';
-
-/**
- * `p-mod-horizontal`: the class name added to horizontal panels and handles.
- */
-export
-const HORIZONTAL_CLASS = 'p-mod-horizontal';
-
-/**
- * `p-mod-vertical`: the class name added to vertical panels and handles.
- */
-export
-const VERTICAL_CLASS = 'p-mod-vertical';
-
-/**
- * `p-mod-hidden`: The class name added to hidden split handles.
- */
-export
-const HIDDEN_CLASS = 'p-mod-hidden';
-
-
-/**
  * The layout orientation of a split panel.
  */
 export
@@ -101,6 +64,31 @@ enum Orientation {
  */
 export
 class SplitPanel extends Widget {
+  /**
+   * The class name added to SplitPanel instances.
+   */
+  static p_SplitPanel = 'p-SplitPanel';
+
+  /**
+   * The class name added to a split handle.
+   */
+  static p_SplitHandle = 'p-SplitHandle';
+
+  /**
+   * The class name added to a split handle overlay.
+   */
+  static p_SplitHandle_overlay = 'p-SplitHandle-overlay';
+
+  /**
+   * The class name added to horizontal split panels and handles.
+   */
+  static p_mod_horizontal = 'p-mod-horizontal';
+
+  /**
+   * The class name added to vertical split panels and handles.
+   */
+  static p_mod_vertical = 'p-mod-vertical';
+
   /**
    * A convenience alias of the `Horizontal` [[Orientation]].
    */
@@ -186,8 +174,8 @@ class SplitPanel extends Widget {
    */
   constructor() {
     super();
-    this.addClass(SPLIT_PANEL_CLASS);
-    this.addClass(HORIZONTAL_CLASS);
+    this.addClass(SplitPanel.p_SplitPanel);
+    this.addClass(SplitPanel.p_mod_horizontal);
   }
 
   /**
@@ -682,8 +670,8 @@ class SplitPanel extends Widget {
    * The change handler for the [[orientationProperty]].
    */
   private _onOrientationChanged(old: Orientation, value: Orientation): void {
-    this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
-    this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
+    this.toggleClass(SplitPanel.p_mod_horizontal, value === Orientation.Horizontal);
+    this.toggleClass(SplitPanel.p_mod_vertical, value === Orientation.Vertical);
     postMessage(this, MSG_LAYOUT_REQUEST);
   }
 
@@ -725,7 +713,7 @@ class SplitHandle extends NodeWrapper {
   static createNode(): HTMLElement {
     var node = document.createElement('div');
     var overlay = document.createElement('div');
-    overlay.className = OVERLAY_CLASS;
+    overlay.className = SplitPanel.p_SplitHandle_overlay;
     node.appendChild(overlay);
     return node;
   }
@@ -735,8 +723,8 @@ class SplitHandle extends NodeWrapper {
    */
   constructor() {
     super();
-    this.addClass(SPLIT_HANDLE_CLASS);
-    this.addClass(HORIZONTAL_CLASS);
+    this.addClass(SplitPanel.p_SplitHandle);
+    this.addClass(SplitPanel.p_mod_horizontal);
   }
 
   /**
@@ -754,7 +742,7 @@ class SplitHandle extends NodeWrapper {
       return;
     }
     this._hidden = hidden;
-    this.toggleClass(HIDDEN_CLASS, hidden);
+    this.toggleClass(SplitPanel.p_mod_hidden, hidden);
   }
 
   /**
@@ -772,8 +760,8 @@ class SplitHandle extends NodeWrapper {
       return;
     }
     this._orientation = value;
-    this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
-    this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
+    this.toggleClass(SplitPanel.p_mod_horizontal, value === Orientation.Horizontal);
+    this.toggleClass(SplitPanel.p_mod_vertical, value === Orientation.Vertical);
   }
 
   private _hidden = false;
