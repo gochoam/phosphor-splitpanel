@@ -72,22 +72,6 @@ describe('phosphor-splitpanel', () => {
 
     });
 
-    describe('.p_SplitHandle', () => {
-
-      it('should equal `p-SplitHandle`', () => {
-        expect(SplitPanel.p_SplitHandle).to.be('p-SplitHandle');
-      });
-
-    });
-
-    describe('.p_SplitHandle_overlay', () => {
-
-      it('should equal `p-SplitHandle-overlay`', () => {
-        expect(SplitPanel.p_SplitHandle_overlay).to.be('p-SplitHandle-overlay');
-      });
-
-    });
-
     describe('.p_mod_horizontal', () => {
 
       it('should equal `p-mod-horizontal`', () => {

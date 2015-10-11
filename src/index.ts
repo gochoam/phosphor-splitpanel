@@ -70,22 +70,12 @@ class SplitPanel extends Widget {
   static p_SplitPanel = 'p-SplitPanel';
 
   /**
-   * The class name added to a split handle.
-   */
-  static p_SplitHandle = 'p-SplitHandle';
-
-  /**
-   * The class name added to a split handle overlay.
-   */
-  static p_SplitHandle_overlay = 'p-SplitHandle-overlay';
-
-  /**
-   * The class name added to horizontal split panels and handles.
+   * The class name added to horizontal split panels.
    */
   static p_mod_horizontal = 'p-mod-horizontal';
 
   /**
-   * The class name added to vertical split panels and handles.
+   * The class name added to vertical split panels.
    */
   static p_mod_vertical = 'p-mod-vertical';
 
@@ -708,12 +698,37 @@ interface IPressData {
  */
 class SplitHandle extends NodeWrapper {
   /**
+   * The class name added to SplitHandle instances.
+   */
+  static p_SplitHandle = 'p-SplitHandle';
+
+  /**
+   * The class name added to a split handle overlay.
+   */
+  static p_SplitHandle_overlay = 'p-SplitHandle-overlay';
+
+  /**
+   * The class name added to hidden split handles.
+   */
+  static p_mod_hidden = 'p-mod-hidden';
+
+  /**
+   * The class name added to horizontal split handles.
+   */
+  static p_mod_horizontal = 'p-mod-horizontal';
+
+  /**
+   * The class name added to vertical split handles.
+   */
+  static p_mod_vertical = 'p-mod-vertical';
+
+  /**
    * Create the DOM node for a split handle.
    */
   static createNode(): HTMLElement {
     var node = document.createElement('div');
     var overlay = document.createElement('div');
-    overlay.className = SplitPanel.p_SplitHandle_overlay;
+    overlay.className = SplitHandle.p_SplitHandle_overlay;
     node.appendChild(overlay);
     return node;
   }
@@ -723,8 +738,8 @@ class SplitHandle extends NodeWrapper {
    */
   constructor() {
     super();
-    this.addClass(SplitPanel.p_SplitHandle);
-    this.addClass(SplitPanel.p_mod_horizontal);
+    this.addClass(SplitHandle.p_SplitHandle);
+    this.addClass(SplitHandle.p_mod_horizontal);
   }
 
   /**
@@ -742,7 +757,7 @@ class SplitHandle extends NodeWrapper {
       return;
     }
     this._hidden = hidden;
-    this.toggleClass(SplitPanel.p_mod_hidden, hidden);
+    this.toggleClass(SplitHandle.p_mod_hidden, hidden);
   }
 
   /**
@@ -760,8 +775,8 @@ class SplitHandle extends NodeWrapper {
       return;
     }
     this._orientation = value;
-    this.toggleClass(SplitPanel.p_mod_horizontal, value === Orientation.Horizontal);
-    this.toggleClass(SplitPanel.p_mod_vertical, value === Orientation.Vertical);
+    this.toggleClass(SplitHandle.p_mod_horizontal, value === Orientation.Horizontal);
+    this.toggleClass(SplitHandle.p_mod_vertical, value === Orientation.Vertical);
   }
 
   private _hidden = false;
