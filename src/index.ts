@@ -103,14 +103,14 @@ class SplitPanel extends Widget {
   });
 
   /**
-   * The property descriptor for the split panel handle size.
+   * The property descriptor for the split panel spacing size.
    *
-   * The controls the size of the split handles placed between the
+   * The controls the size of the spacing between the
    * children of the panel, in pixels. The default value is `3`.
    *
-   * **See also:** [[handleSize]]
+   * **See also:** [[spacing]]
    */
-  static handleSizeProperty = new Property<SplitPanel, number>({
+  static spacingProperty = new Property<SplitPanel, number>({
     value: 3,
     coerce: (owner, value) => Math.max(0, value | 0),
     changed: owner => postMessage(owner, MSG_LAYOUT_REQUEST),
@@ -198,23 +198,23 @@ class SplitPanel extends Widget {
   }
 
   /**
-   * Get the size of the split handles.
+   * Get the spacing size.
    *
    * #### Notes
-   * This is a pure delegate to the [[handleSizeProperty]].
+   * This is a pure delegate to the [[spacingProperty]].
    */
-  get handleSize(): number {
-    return SplitPanel.handleSizeProperty.get(this);
+  get spacing(): number {
+    return SplitPanel.spacingProperty.get(this);
   }
 
   /**
-   * Set the the size of the split handles.
+   * Set the spacing size.
    *
    * #### Notes
-   * This is a pure delegate to the [[handleSizeProperty]].
+   * This is a pure delegate to the [[spacingProperty]].
    */
-  set handleSize(size: number) {
-    SplitPanel.handleSizeProperty.set(this, size);
+  set spacing(size: number) {
+    SplitPanel.spacingProperty.set(this, size);
   }
 
   /**
@@ -393,7 +393,7 @@ class SplitPanel extends Widget {
 
     // Hide the last visible handle and update the fixed space.
     if (lastVisibleHandle) lastVisibleHandle.hidden = true;
-    this._fixedSpace = this.handleSize * Math.max(0, visibleCount - 1);
+    this._fixedSpace = this.spacing * Math.max(0, visibleCount - 1);
 
     // Compute new size constraints for the split panel.
     var minW = 0;
@@ -495,7 +495,7 @@ class SplitPanel extends Widget {
     }
 
     // Distribute the layout space and layout the items.
-    var handleSize = this.handleSize;
+    var spacing = this.spacing;
     if (horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
       for (var i = 0, n = this.childCount; i < n; ++i) {
@@ -508,9 +508,9 @@ class SplitPanel extends Widget {
         widget.setOffsetGeometry(left, top, size, height);
         hStyle.top = top + 'px';
         hStyle.left = left + size + 'px';
-        hStyle.width = handleSize + 'px';
+        hStyle.width = spacing + 'px';
         hStyle.height = height + 'px';
-        left += size + handleSize;
+        left += size + spacing;
       }
     } else {
       boxCalc(this._sizers, Math.max(0, height - this._fixedSpace));
@@ -525,8 +525,8 @@ class SplitPanel extends Widget {
         hStyle.top = top + size + 'px';
         hStyle.left = left + 'px';
         hStyle.width = width + 'px';
-        hStyle.height = handleSize + 'px';
-        top += size + handleSize;
+        hStyle.height = spacing + 'px';
+        top += size + spacing;
       }
     }
   }
