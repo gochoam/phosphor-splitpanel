@@ -127,7 +127,6 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#horizontal" class="tsd-kind-icon">Horizontal</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#vertical" class="tsd-kind-icon">Vertical</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="splitpanel.html#disposedsignal" class="tsd-kind-icon">disposed<wbr>Signal</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#handlesizeproperty" class="tsd-kind-icon">handle<wbr>Size<wbr>Property</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="splitpanel.html#hiddenproperty" class="tsd-kind-icon">hidden<wbr>Property</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#orientationproperty" class="tsd-kind-icon">orientation<wbr>Property</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#p_splitpanel" class="tsd-kind-icon">p_<wbr><wbr>Split<wbr>Panel</a></li>
@@ -135,14 +134,15 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="splitpanel.html#p_mod_hidden" class="tsd-kind-icon">p_<wbr>mod_<wbr>hidden</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#p_mod_horizontal" class="tsd-kind-icon">p_<wbr>mod_<wbr>horizontal</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#p_mod_vertical" class="tsd-kind-icon">p_<wbr>mod_<wbr>vertical</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#spacingproperty" class="tsd-kind-icon">spacing<wbr>Property</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="splitpanel.html#stretchproperty" class="tsd-kind-icon">stretch<wbr>Property</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="splitpanel.html#handlesize" class="tsd-kind-icon">handle<wbr>Size</a></li>
 								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="splitpanel.html#orientation" class="tsd-kind-icon">orientation</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="splitpanel.html#spacing" class="tsd-kind-icon">spacing</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -590,24 +590,6 @@
 						<p><strong>See also:</strong> <a href="splitpanel.html#disposed">disposed</a>, <a href="splitpanel.html#isdisposed">isDisposed</a></p>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="handlesizeproperty" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> handle<wbr>Size<wbr>Property</h3>
-					<div class="tsd-signature tsd-kind-icon">handle<wbr>Size<wbr>Property<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Property</span><span class="tsd-signature-symbol">&lt;</span><a href="splitpanel.html" class="tsd-signature-type">SplitPanel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L113">index.ts:113</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The property descriptor for the split panel handle size.</p>
-						</div>
-						<p>The controls the size of the split handles placed between the
-						children of the panel, in pixels. The default value is <code>3</code>.</p>
-						<p><strong>See also:</strong> <a href="splitpanel.html#handlesize">handleSize</a></p>
-					</div>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="hiddenproperty" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> hidden<wbr>Property</h3>
@@ -729,6 +711,24 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="spacingproperty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> spacing<wbr>Property</h3>
+					<div class="tsd-signature tsd-kind-icon">spacing<wbr>Property<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Property</span><span class="tsd-signature-symbol">&lt;</span><a href="splitpanel.html" class="tsd-signature-type">SplitPanel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L113">index.ts:113</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The property descriptor for the split panel spacing size.</p>
+						</div>
+						<p>The controls the size of the spacing between the
+						children of the panel, in pixels. The default value is <code>3</code>.</p>
+						<p><strong>See also:</strong> <a href="splitpanel.html#spacing">spacing</a></p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="stretchproperty" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> stretch<wbr>Property</h3>
 					<div class="tsd-signature tsd-kind-icon">stretch<wbr>Property<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Property</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Widget</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
@@ -750,52 +750,6 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
-					<a name="handlesize" class="tsd-anchor"></a>
-					<h3>handle<wbr>Size</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> handleSize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> handleSize<span class="tsd-signature-symbol">(</span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L206">index.ts:206</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get the size of the split handles.</p>
-								</div>
-								<h4 id="notes">Notes</h4>
-								<p>This is a pure delegate to the <a href="splitpanel.html#handlesizeproperty">handleSizeProperty</a>.</p>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L216">index.ts:216</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Set the the size of the split handles.</p>
-								</div>
-								<h4 id="notes">Notes</h4>
-								<p>This is a pure delegate to the <a href="splitpanel.html#handlesizeproperty">handleSizeProperty</a>.</p>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>size: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
 					<a name="orientation" class="tsd-anchor"></a>
 					<h3>orientation</h3>
@@ -836,6 +790,52 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>value: <a href="../enums/orientation.html" class="tsd-signature-type">Orientation</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="spacing" class="tsd-anchor"></a>
+					<h3>spacing</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> spacing<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> spacing<span class="tsd-signature-symbol">(</span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L206">index.ts:206</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the spacing size.</p>
+								</div>
+								<h4 id="notes">Notes</h4>
+								<p>This is a pure delegate to the <a href="splitpanel.html#spacingproperty">spacingProperty</a>.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/phosphorjs/phosphor-splitpanel/blob/HEAD/src/index.ts#L216">index.ts:216</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set the spacing size.</p>
+								</div>
+								<h4 id="notes">Notes</h4>
+								<p>This is a pure delegate to the <a href="splitpanel.html#spacingproperty">spacingProperty</a>.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>size: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -2573,9 +2573,6 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 								<a href="splitpanel.html#disposedsignal" class="tsd-kind-icon">disposed<wbr>Signal</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="splitpanel.html#handlesizeproperty" class="tsd-kind-icon">handle<wbr>Size<wbr>Property</a>
-							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 								<a href="splitpanel.html#hiddenproperty" class="tsd-kind-icon">hidden<wbr>Property</a>
 							</li>
@@ -2598,13 +2595,16 @@
 								<a href="splitpanel.html#p_mod_vertical" class="tsd-kind-icon">p_<wbr>mod_<wbr>vertical</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="splitpanel.html#spacingproperty" class="tsd-kind-icon">spacing<wbr>Property</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="splitpanel.html#stretchproperty" class="tsd-kind-icon">stretch<wbr>Property</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="splitpanel.html#handlesize" class="tsd-kind-icon">handle<wbr>Size</a>
+								<a href="splitpanel.html#orientation" class="tsd-kind-icon">orientation</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="splitpanel.html#orientation" class="tsd-kind-icon">orientation</a>
+								<a href="splitpanel.html#spacing" class="tsd-kind-icon">spacing</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="splitpanel.html#_evtmousedown" class="tsd-kind-icon">_evt<wbr>Mouse<wbr>Down</a>
