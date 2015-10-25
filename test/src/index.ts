@@ -64,30 +64,6 @@ describe('phosphor-splitpanel', () => {
 
   describe('SplitPanel', () => {
 
-    describe('.p_SplitPanel', () => {
-
-      it('should equal `p-SplitPanel`', () => {
-        expect(SplitPanel.p_SplitPanel).to.be('p-SplitPanel');
-      });
-
-    });
-
-    describe('.p_mod_horizontal', () => {
-
-      it('should equal `p-mod-horizontal`', () => {
-        expect(SplitPanel.p_mod_horizontal).to.be('p-mod-horizontal');
-      });
-
-    });
-
-    describe('.p_mod_vertical', () => {
-
-      it('should equal `p-mod-vertical`', () => {
-        expect(SplitPanel.p_mod_vertical).to.be('p-mod-vertical');
-      });
-
-    });
-
     describe('.Horizontal', () => {
 
       it('should be an alias of the `Horizontal` Orientation', () => {
@@ -118,11 +94,11 @@ describe('phosphor-splitpanel', () => {
 
       it('should toggle the orientation classes', () => {
         var panel = new SplitPanel();
-        expect(panel.hasClass(SplitPanel.p_mod_horizontal)).to.be(true);
-        expect(panel.hasClass(SplitPanel.p_mod_vertical)).to.be(false);
+        expect(panel.hasClass('p-mod-horizontal')).to.be(true);
+        expect(panel.hasClass('p-mod-vertical')).to.be(false);
         SplitPanel.orientationProperty.set(panel, Orientation.Vertical);
-        expect(panel.hasClass(SplitPanel.p_mod_horizontal)).to.be(false);
-        expect(panel.hasClass(SplitPanel.p_mod_vertical)).to.be(true);
+        expect(panel.hasClass('p-mod-horizontal')).to.be(false);
+        expect(panel.hasClass('p-mod-vertical')).to.be(true);
       });
 
       it('should post a `layout-request`', (done) => {
@@ -226,7 +202,7 @@ describe('phosphor-splitpanel', () => {
 
       it('should add the `p-SplitPanel` class', () => {
         var panel = new SplitPanel();
-        expect(panel.hasClass(SplitPanel.p_SplitPanel)).to.be(true);
+        expect(panel.hasClass('p-SplitPanel')).to.be(true);
       });
 
     });
@@ -269,12 +245,12 @@ describe('phosphor-splitpanel', () => {
 
     describe('#spacing', () => {
 
-      it('should get the spacing size', () => {
+      it('should get the inter-element spacing', () => {
         var panel = new SplitPanel();
         expect(panel.spacing).to.be(3);
       });
 
-      it('should set the spacing size', () => {
+      it('should set the inter-element spacing', () => {
         var panel = new SplitPanel();
         panel.spacing = 5;
         expect(panel.spacing).to.be(5);
