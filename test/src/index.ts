@@ -137,20 +137,20 @@ describe('phosphor-splitpanel', () => {
 
     });
 
-    describe('.handleSizeProperty', () => {
+    describe('.spacingProperty', () => {
 
       it('should be a property descriptor', () => {
-        expect(SplitPanel.handleSizeProperty instanceof Property).to.be(true);
+        expect(SplitPanel.spacingProperty instanceof Property).to.be(true);
       });
 
       it('should default to `3`', () => {
         var panel = new SplitPanel();
-        expect(SplitPanel.handleSizeProperty.get(panel)).to.be(3);
+        expect(SplitPanel.spacingProperty.get(panel)).to.be(3);
       });
 
       it('should post a `layout-request`', (done) => {
         var panel = new LogPanel();
-        SplitPanel.handleSizeProperty.set(panel, 4);
+        SplitPanel.spacingProperty.set(panel, 4);
         expect(panel.messages.indexOf('layout-request')).to.be(-1);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
@@ -267,25 +267,25 @@ describe('phosphor-splitpanel', () => {
 
     });
 
-    describe('#handleSize', () => {
+    describe('#spacing', () => {
 
-      it('should get the size of the split handles', () => {
+      it('should get the spacing size', () => {
         var panel = new SplitPanel();
-        expect(panel.handleSize).to.be(3);
+        expect(panel.spacing).to.be(3);
       });
 
-      it('should set the size of the split handles', () => {
+      it('should set the spacing size', () => {
         var panel = new SplitPanel();
-        panel.handleSize = 5;
-        expect(panel.handleSize).to.be(5);
+        panel.spacing = 5;
+        expect(panel.spacing).to.be(5);
       });
 
-      it('should a pure delegate to the handleSizeProperty', () => {
+      it('should a pure delegate to the spacingProperty', () => {
         var panel = new SplitPanel();
-        SplitPanel.handleSizeProperty.set(panel, 2);
-        expect(panel.handleSize).to.be(2);
-        panel.handleSize = 5;
-        expect(SplitPanel.handleSizeProperty.get(panel)).to.be(5);
+        SplitPanel.spacingProperty.set(panel, 2);
+        expect(panel.spacing).to.be(2);
+        panel.spacing = 5;
+        expect(SplitPanel.spacingProperty.get(panel)).to.be(5);
       });
 
     });
@@ -758,7 +758,7 @@ describe('phosphor-splitpanel', () => {
         var child1 = new Widget();
         var child2 = new Widget();
         child2.hidden = true;
-        panel.handleSize = 8;
+        panel.spacing = 8;
         panel.orientation = Orientation.Horizontal;
         child0.node.style.minWidth = '30px';
         child1.node.style.minHeight = '50px';
@@ -781,7 +781,7 @@ describe('phosphor-splitpanel', () => {
         var child1 = new Widget();
         var child2 = new Widget();
         child2.hidden = true;
-        panel.handleSize = 8;
+        panel.spacing = 8;
         panel.orientation = Orientation.Vertical;
         child0.node.style.minWidth = '30px';
         child1.node.style.minHeight = '50px';
