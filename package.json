@@ -11,8 +11,8 @@
     "phosphor-domutil": "^0.9.5",
     "phosphor-messaging": "^1.0.5",
     "phosphor-nodewrapper": "^1.0.4",
-    "phosphor-properties": "^1.2.0",
-    "phosphor-widget": "^0.9.11"
+    "phosphor-properties": "^1.3.0",
+    "phosphor-widget": "^0.9.13"
   },
   "devDependencies": {
     "browserify": "^11.0.1",
@@ -56,9 +56,9 @@
     "url": "https://github.com/phosphorjs/phosphor-splitpanel.git"
   },
   "files": [
-    "lib/index.js",
     "lib/index.css",
-    "lib/index.d.ts"
+    "lib/index.d.ts",
+    "lib/index.js"
   ],
   "browserify": {
     "transform": [
@@ -66,11 +66,11 @@
     ]
   },
   "keywords": [
-    "ui",
     "panel",
     "split",
-    "splitter",
     "splitpanel",
+    "splitter",
+    "ui",
     "widget",
     "widgets"
   ],
