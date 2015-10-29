@@ -19,7 +19,7 @@ import {
 } from 'phosphor-disposable';
 
 import {
-  overrideCursor
+  IBoxSizing, boxSizing, overrideCursor, sizeLimits
 } from 'phosphor-domutil';
 
 import {
@@ -35,8 +35,7 @@ import {
 } from 'phosphor-properties';
 
 import {
-  ChildMessage, MSG_AFTER_ATTACH, MSG_BEFORE_DETACH, MSG_LAYOUT_REQUEST,
-  ResizeMessage, Widget
+  ChildMessage, ResizeMessage, Widget
 } from 'phosphor-widget';
 
 import './index.css';
@@ -45,32 +44,32 @@ import './index.css';
 /**
  * The class name added to SplitPanel instances.
  */
-var SPLIT_PANEL_CLASS = 'p-SplitPanel';
+const SPLIT_PANEL_CLASS = 'p-SplitPanel';
 
 /**
  * The class name added to SplitHandle instances.
  */
-var SPLIT_HANDLE_CLASS = 'p-SplitHandle';
+const SPLIT_HANDLE_CLASS = 'p-SplitHandle';
 
 /**
  * The class name added to a split handle overlay.
  */
-var OVERLAY_CLASS = 'p-SplitHandle-overlay';
+const OVERLAY_CLASS = 'p-SplitHandle-overlay';
 
 /**
  * The class name added to horizontal split panels and handles.
  */
-var HORIZONTAL_CLASS = 'p-mod-horizontal';
+const HORIZONTAL_CLASS = 'p-mod-horizontal';
 
 /**
  * The class name added to vertical split panels and handles.
  */
-var VERTICAL_CLASS = 'p-mod-vertical';
+const VERTICAL_CLASS = 'p-mod-vertical';
 
 /**
  * The class name added to hidden split handles.
  */
-var HIDDEN_CLASS = 'p-mod-hidden';
+const HIDDEN_CLASS = 'p-mod-hidden';
 
 
 /**
@@ -129,7 +128,7 @@ class SplitPanel extends Widget {
   static spacingProperty = new Property<SplitPanel, number>({
     value: 3,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: owner => postMessage(owner, MSG_LAYOUT_REQUEST),
+    changed: owner => postMessage(owner, Widget.MsgLayoutRequest),
   });
 
   /**
@@ -252,10 +251,10 @@ class SplitPanel extends Widget {
    * Extra values are ignored, too few will yield an undefined layout.
    */
   setSizes(sizes: number[]): void {
-    var normed = normalize(sizes);
-    for (var i = 0, n = this._sizers.length; i < n; ++i) {
-      var hint = Math.max(0, normed[i] || 0);
-      var sizer = this._sizers[i];
+    let normed = normalize(sizes);
+    for (let i = 0, n = this._sizers.length; i < n; ++i) {
+      let hint = Math.max(0, normed[i] || 0);
+      let sizer = this._sizers[i];
       sizer.sizeHint = hint;
       sizer.size = hint;
     }
@@ -291,12 +290,12 @@ class SplitPanel extends Widget {
    * A message handler invoked on a `'child-added'` message.
    */
   protected onChildAdded(msg: ChildMessage): void {
-    var sizer = createSizer(averageSize(this._sizers));
+    let sizer = createSizer(averageSize(this._sizers));
     arrays.insert(this._sizers, msg.currentIndex, sizer);
     this.node.appendChild(msg.child.node);
     this.node.appendChild(getHandle(msg.child).node);
-    if (this.isAttached) sendMessage(msg.child, MSG_AFTER_ATTACH);
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    if (this.isAttached) sendMessage(msg.child, Widget.MsgAfterAttach);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
@@ -304,11 +303,11 @@ class SplitPanel extends Widget {
    */
   protected onChildRemoved(msg: ChildMessage): void {
     arrays.removeAt(this._sizers, msg.previousIndex);
-    if (this.isAttached) sendMessage(msg.child, MSG_BEFORE_DETACH);
+    if (this.isAttached) sendMessage(msg.child, Widget.MsgBeforeDetach);
     this.node.removeChild(msg.child.node);
     this.node.removeChild(getHandle(msg.child).node);
-    postMessage(this, MSG_LAYOUT_REQUEST);
-    msg.child.clearOffsetGeometry();
+    postMessage(this, Widget.MsgLayoutRequest);
+    resetGeometry(msg.child);
   }
 
   /**
@@ -316,7 +315,7 @@ class SplitPanel extends Widget {
    */
   protected onChildMoved(msg: ChildMessage): void {
     arrays.move(this._sizers, msg.previousIndex, msg.currentIndex);
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
@@ -331,7 +330,7 @@ class SplitPanel extends Widget {
    */
   protected onAfterAttach(msg: Message): void {
     this.node.addEventListener('mousedown', this);
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
@@ -345,14 +344,14 @@ class SplitPanel extends Widget {
    * A message handler invoked on a `'child-shown'` message.
    */
   protected onChildShown(msg: ChildMessage): void {
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
    * A message handler invoked on a `'child-hidden'` message.
    */
   protected onChildHidden(msg: ChildMessage): void {
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
@@ -360,12 +359,9 @@ class SplitPanel extends Widget {
    */
   protected onResize(msg: ResizeMessage): void {
     if (this.isVisible) {
-      if (msg.width < 0 || msg.height < 0) {
-        var rect = this.offsetRect;
-        this._layoutChildren(rect.width, rect.height);
-      } else {
-        this._layoutChildren(msg.width, msg.height);
-      }
+      let width = msg.width < 0 ? this.node.offsetWidth : msg.width;
+      let height = msg.height < 0 ? this.node.offsetHeight : msg.height;
+      this._layoutChildren(width, height);
     }
   }
 
@@ -374,8 +370,7 @@ class SplitPanel extends Widget {
    */
   protected onUpdateRequest(msg: Message): void {
     if (this.isVisible) {
-      var rect = this.offsetRect;
-      this._layoutChildren(rect.width, rect.height);
+      this._layoutChildren(this.node.offsetWidth, this.node.offsetHeight);
     }
   }
 
@@ -393,12 +388,12 @@ class SplitPanel extends Widget {
    */
   private _setupGeometry(): void {
     // Update the handles and track the visible widget count.
-    var visibleCount = 0;
-    var orientation = this.orientation;
-    var lastVisibleHandle: SplitHandle = null;
-    for (var i = 0, n = this.childCount; i < n; ++i) {
-      var widget = this.childAt(i);
-      var handle = getHandle(widget);
+    let visibleCount = 0;
+    let orientation = this.orientation;
+    let lastVisibleHandle: SplitHandle = null;
+    for (let i = 0, n = this.childCount; i < n; ++i) {
+      let widget = this.childAt(i);
+      let handle = getHandle(widget);
       handle.hidden = widget.hidden;
       handle.orientation = orientation;
       if (!handle.hidden) {
@@ -412,16 +407,16 @@ class SplitPanel extends Widget {
     this._fixedSpace = this.spacing * Math.max(0, visibleCount - 1);
 
     // Compute new size constraints for the split panel.
-    var minW = 0;
-    var minH = 0;
-    var maxW = Infinity;
-    var maxH = Infinity;
+    let minW = 0;
+    let minH = 0;
+    let maxW = Infinity;
+    let maxH = Infinity;
     if (orientation === Orientation.Horizontal) {
       minW = this._fixedSpace;
       maxW = visibleCount > 0 ? minW : maxW;
-      for (var i = 0, n = this.childCount; i < n; ++i) {
-        var widget = this.childAt(i);
-        var sizer = this._sizers[i];
+      for (let i = 0, n = this.childCount; i < n; ++i) {
+        let widget = this.childAt(i);
+        let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
         }
@@ -430,7 +425,7 @@ class SplitPanel extends Widget {
           sizer.maxSize = 0;
           continue;
         }
-        var limits = widget.sizeLimits;
+        let limits = sizeLimits(widget.node);
         sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minWidth;
         sizer.maxSize = limits.maxWidth;
@@ -442,9 +437,9 @@ class SplitPanel extends Widget {
     } else {
       minH = this._fixedSpace;
       maxH = visibleCount > 0 ? minH : maxH;
-      for (var i = 0, n = this.childCount; i < n; ++i) {
-        var widget = this.childAt(i);
-        var sizer = this._sizers[i];
+      for (let i = 0, n = this.childCount; i < n; ++i) {
+        let widget = this.childAt(i);
+        let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
         }
@@ -453,7 +448,7 @@ class SplitPanel extends Widget {
           sizer.maxSize = 0;
           continue;
         }
-        var limits = widget.sizeLimits;
+        let limits = sizeLimits(widget.node);
         sizer.stretch = SplitPanel.getStretch(widget);
         sizer.minSize = limits.minHeight;
         sizer.maxSize = limits.maxHeight;
@@ -464,18 +459,22 @@ class SplitPanel extends Widget {
       }
     }
 
-    // Add the box sizing to the size constraints.
-    var box = this.boxSizing;
-    minW += box.horizontalSum;
-    minH += box.verticalSum;
-    maxW += box.horizontalSum;
-    maxH += box.verticalSum;
+    // Update the box sizing and add it to the size constraints.
+    this._box = boxSizing(this.node);
+    minW += this._box.horizontalSum;
+    minH += this._box.verticalSum;
+    maxW += this._box.horizontalSum;
+    maxH += this._box.verticalSum;
 
     // Update the panel's size constraints.
-    this.setSizeLimits(minW, minH, maxW, maxH);
+    let style = this.node.style;
+    style.minWidth = minW + 'px';
+    style.minHeight = minH + 'px';
+    style.maxWidth = maxW === Infinity ? 'none' : maxW + 'px';
+    style.maxHeight = maxH === Infinity ? 'none' : maxH + 'px';
 
     // Notifiy the parent that it should relayout.
-    if (this.parent) sendMessage(this.parent, MSG_LAYOUT_REQUEST);
+    if (this.parent) sendMessage(this.parent, Widget.MsgLayoutRequest);
 
     // Update the layout for the child widgets.
     this.update(true);
@@ -490,38 +489,40 @@ class SplitPanel extends Widget {
       return;
     }
 
+    // Ensure the box sizing is created.
+    let box = this._box || (this._box = boxSizing(this.node));
+
     // Compute the actual layout bounds adjusted for border and padding.
-    var box = this.boxSizing;
-    var top = box.paddingTop;
-    var left = box.paddingLeft;
-    var width = offsetWidth - box.horizontalSum;
-    var height = offsetHeight - box.verticalSum;
+    let top = box.paddingTop;
+    let left = box.paddingLeft;
+    let width = offsetWidth - box.horizontalSum;
+    let height = offsetHeight - box.verticalSum;
 
     // Fetch whether the orientation is horizontal.
-    var horizontal = this.orientation === Orientation.Horizontal;
+    let horizontal = this.orientation === Orientation.Horizontal;
 
     // Update the sizer hints if there is a pending `setSizes`.
     if (this._pendingSizes) {
-      var space = horizontal ? width : height;
-      var adjusted = Math.max(0, space - this._fixedSpace);
-      for (var i = 0, n = this._sizers.length; i < n; ++i) {
+      let space = horizontal ? width : height;
+      let adjusted = Math.max(0, space - this._fixedSpace);
+      for (let i = 0, n = this._sizers.length; i < n; ++i) {
         this._sizers[i].sizeHint *= adjusted;
       }
       this._pendingSizes = false;
     }
 
     // Distribute the layout space and layout the items.
-    var spacing = this.spacing;
+    let spacing = this.spacing;
     if (horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
-      for (var i = 0, n = this.childCount; i < n; ++i) {
-        var widget = this.childAt(i);
+      for (let i = 0, n = this.childCount; i < n; ++i) {
+        let widget = this.childAt(i);
         if (widget.hidden) {
           continue;
         }
-        var size = this._sizers[i].size;
-        var hStyle = getHandle(widget).node.style;
-        widget.setOffsetGeometry(left, top, size, height);
+        let size = this._sizers[i].size;
+        let hStyle = getHandle(widget).node.style;
+        setGeometry(widget, left, top, size, height);
         hStyle.top = top + 'px';
         hStyle.left = left + size + 'px';
         hStyle.width = spacing + 'px';
@@ -530,14 +531,14 @@ class SplitPanel extends Widget {
       }
     } else {
       boxCalc(this._sizers, Math.max(0, height - this._fixedSpace));
-      for (var i = 0, n = this.childCount; i < n; ++i) {
-        var widget = this.childAt(i);
+      for (let i = 0, n = this.childCount; i < n; ++i) {
+        let widget = this.childAt(i);
         if (widget.hidden) {
           continue;
         }
-        var size = this._sizers[i].size;
-        var hStyle = getHandle(widget).node.style;
-        widget.setOffsetGeometry(left, top, width, size);
+        let size = this._sizers[i].size;
+        let hStyle = getHandle(widget).node.style;
+        setGeometry(widget, left, top, width, size);
         hStyle.top = top + size + 'px';
         hStyle.left = left + 'px';
         hStyle.width = width + 'px';
@@ -554,7 +555,7 @@ class SplitPanel extends Widget {
     if (event.button !== 0) {
       return;
     }
-    var index = this._findHandleIndex(<HTMLElement>event.target);
+    let index = this._findHandleIndex(<HTMLElement>event.target);
     if (index === -1) {
       return;
     }
@@ -562,14 +563,14 @@ class SplitPanel extends Widget {
     event.stopPropagation();
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
-    var delta: number;
-    var node = getHandle(this.childAt(index)).node;
+    let delta: number;
+    let node = getHandle(this.childAt(index)).node;
     if (this.orientation === Orientation.Horizontal) {
       delta = event.clientX - node.getBoundingClientRect().left;
     } else {
       delta = event.clientY - node.getBoundingClientRect().top;
     }
-    var override = overrideCursor(window.getComputedStyle(node).cursor);
+    let override = overrideCursor(window.getComputedStyle(node).cursor);
     this._pressData = { index: index, delta: delta, override: override };
   }
 
@@ -591,9 +592,9 @@ class SplitPanel extends Widget {
   private _evtMouseMove(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    var pos: number;
-    var data = this._pressData;
-    var rect = this.node.getBoundingClientRect();
+    let pos: number;
+    let data = this._pressData;
+    let rect = this.node.getBoundingClientRect();
     if (this.orientation === Orientation.Horizontal) {
       pos = event.clientX - data.delta - rect.left;
     } else {
@@ -620,17 +621,17 @@ class SplitPanel extends Widget {
    */
   private _moveHandle(index: number, pos: number): void {
     // Bail if the handle is invalid or hidden.
-    var widget = this.childAt(index);
+    let widget = this.childAt(index);
     if (!widget) {
       return;
     }
-    var handle = getHandle(widget);
+    let handle = getHandle(widget);
     if (handle.hidden) {
       return;
     }
 
     // Compute the delta movement for the handle.
-    var delta: number;
+    let delta: number;
     if (this.orientation === Orientation.Horizontal) {
       delta = pos - handle.node.offsetLeft;
     } else {
@@ -641,8 +642,8 @@ class SplitPanel extends Widget {
     }
 
     // Prevent item resizing unless needed.
-    for (var i = 0, n = this._sizers.length; i < n; ++i) {
-      var sizer = this._sizers[i];
+    for (let i = 0, n = this._sizers.length; i < n; ++i) {
+      let sizer = this._sizers[i];
       if (sizer.size > 0) sizer.sizeHint = sizer.size;
     }
 
@@ -665,8 +666,8 @@ class SplitPanel extends Widget {
    * Find the index of the split handle which contains the given target.
    */
   private _findHandleIndex(target: HTMLElement): number {
-    for (var i = 0, n = this.childCount; i < n; ++i) {
-      var handle = getHandle(this.childAt(i));
+    for (let i = 0, n = this.childCount; i < n; ++i) {
+      let handle = getHandle(this.childAt(i));
       if (handle.node.contains(target)) return i;
     }
     return -1;
@@ -678,11 +679,12 @@ class SplitPanel extends Widget {
   private _onOrientationChanged(old: Orientation, value: Orientation): void {
     this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
     this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
-    postMessage(this, MSG_LAYOUT_REQUEST);
+    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   private _fixedSpace = 0;
   private _pendingSizes = false;
+  private _box: IBoxSizing = null;
   private _sizers: BoxSizer[] = [];
   private _pressData: IPressData = null;
 }
@@ -717,8 +719,8 @@ class SplitHandle extends NodeWrapper {
    * Create the DOM node for a split handle.
    */
   static createNode(): HTMLElement {
-    var node = document.createElement('div');
-    var overlay = document.createElement('div');
+    let node = document.createElement('div');
+    let overlay = document.createElement('div');
     overlay.className = OVERLAY_CLASS;
     node.appendChild(overlay);
     return node;
@@ -776,10 +778,44 @@ class SplitHandle extends NodeWrapper {
 
 
 /**
+ * An object which represents an offset rect.
+ */
+interface IRect {
+  /**
+   * The offset top edge, in pixels.
+   */
+  top: number;
+
+  /**
+   * The offset left edge, in pixels.
+   */
+  left: number;
+
+  /**
+   * The offset width, in pixels.
+   */
+  width: number;
+
+  /**
+   * The offset height, in pixels.
+   */
+  height: number;
+}
+
+
+/**
  * A private attached property for the split handle for a widget.
  */
-var splitHandleProperty = new Property<Widget, SplitHandle>({
+let splitHandleProperty = new Property<Widget, SplitHandle>({
   create: owner => new SplitHandle(),
+});
+
+
+/**
+ * A private attached property which stores a widget offset rect.
+ */
+let rectProperty = new Property<Widget, IRect>({
+  create: createRect,
 });
 
 
@@ -792,11 +828,77 @@ function getHandle(widget: Widget): SplitHandle {
 
 
 /**
+ * Create a new offset rect filled with NaNs.
+ */
+function createRect(): IRect {
+  return { top: NaN, left: NaN, width: NaN, height: NaN };
+}
+
+
+/**
+ * Get the offset rect for a widget.
+ */
+function getRect(widget: Widget): IRect {
+  return rectProperty.get(widget);
+}
+
+
+/**
+ * Set the offset geometry for the given widget.
+ *
+ * A resize message will be dispatched to the widget if appropriate.
+ */
+function setGeometry(widget: Widget, left: number, top: number, width: number, height: number): void {
+  let resized = false;
+  let rect = getRect(widget);
+  let style = widget.node.style;
+  if (rect.top !== top) {
+    rect.top = top;
+    style.top = top + 'px';
+  }
+  if (rect.left !== left) {
+    rect.left = left;
+    style.left = left + 'px';
+  }
+  if (rect.width !== width) {
+    resized = true;
+    rect.width = width;
+    style.width = width + 'px';
+  }
+  if (rect.height !== height) {
+    resized = true;
+    rect.height = height;
+    style.height = height + 'px';
+  }
+  if (resized) {
+    sendMessage(widget, new ResizeMessage(width, height));
+  }
+}
+
+
+/**
+ * Reset the inline geometry and rect cache for the given widget
+ */
+function resetGeometry(widget: Widget): void {
+  let rect = getRect(widget);
+  let style = widget.node.style;
+  rect.top = NaN;
+  rect.left = NaN;
+  rect.width = NaN;
+  rect.height = NaN;
+  style.top = '';
+  style.left = '';
+  style.width = '';
+  style.height = '';
+}
+
+
+/**
  * The change handler for the stretch attached property.
  */
 function onStretchChanged(child: Widget, old: number, value: number): void {
   if (child.parent instanceof SplitPanel) {
-    postMessage(child.parent, MSG_LAYOUT_REQUEST);
+    postMessage(child.parent, Widget.MsgLayoutRequest);
   }
 }
 
@@ -805,7 +907,7 @@ function onStretchChanged(child: Widget, old: number, value: number): void {
  * Create a new box sizer with the given size hint.
  */
 function createSizer(size: number): BoxSizer {
-  var sizer = new BoxSizer();
+  let sizer = new BoxSizer();
   sizer.sizeHint = size | 0;
   return sizer;
 }
@@ -815,7 +917,7 @@ function createSizer(size: number): BoxSizer {
  * Compute the average size of the given box sizers.
  */
 function averageSize(sizers: BoxSizer[]): number {
-  var sum = sizers.reduce((v, s) => v + s.size, 0);
+  let sum = sizers.reduce((v, s) => v + s.size, 0);
   return sum > 0 ? sum / sizers.length : 0;
 }
 
@@ -824,21 +926,21 @@ function averageSize(sizers: BoxSizer[]): number {
  * Grow a sizer to the right by a positive delta and adjust neighbors.
  */
 function growSizer(sizers: BoxSizer[], index: number, delta: number): void {
-  var growLimit = 0;
-  for (var i = 0; i <= index; ++i) {
-    var sizer = sizers[i];
+  let growLimit = 0;
+  for (let i = 0; i <= index; ++i) {
+    let sizer = sizers[i];
     growLimit += sizer.maxSize - sizer.size;
   }
-  var shrinkLimit = 0;
-  for (var i = index + 1, n = sizers.length; i < n; ++i) {
-    var sizer = sizers[i];
+  let shrinkLimit = 0;
+  for (let i = index + 1, n = sizers.length; i < n; ++i) {
+    let sizer = sizers[i];
     shrinkLimit += sizer.size - sizer.minSize;
   }
   delta = Math.min(delta, growLimit, shrinkLimit);
-  var grow = delta;
-  for (var i = index; i >= 0 && grow > 0; --i) {
-    var sizer = sizers[i];
-    var limit = sizer.maxSize - sizer.size;
+  let grow = delta;
+  for (let i = index; i >= 0 && grow > 0; --i) {
+    let sizer = sizers[i];
+    let limit = sizer.maxSize - sizer.size;
     if (limit >= grow) {
       sizer.sizeHint = sizer.size + grow;
       grow = 0;
@@ -847,10 +949,10 @@ function growSizer(sizers: BoxSizer[], index: number, delta: number): void {
       grow -= limit;
     }
   }
-  var shrink = delta;
-  for (var i = index + 1, n = sizers.length; i < n && shrink > 0; ++i) {
-    var sizer = sizers[i];
-    var limit = sizer.size - sizer.minSize;
+  let shrink = delta;
+  for (let i = index + 1, n = sizers.length; i < n && shrink > 0; ++i) {
+    let sizer = sizers[i];
+    let limit = sizer.size - sizer.minSize;
     if (limit >= shrink) {
       sizer.sizeHint = sizer.size - shrink;
       shrink = 0;
@@ -866,21 +968,21 @@ function growSizer(sizers: BoxSizer[], index: number, delta: number): void {
  * Shrink a sizer to the left by a positive delta and adjust neighbors.
  */
 function shrinkSizer(sizers: BoxSizer[], index: number, delta: number): void {
-  var growLimit = 0;
-  for (var i = index + 1, n = sizers.length; i < n; ++i) {
-    var sizer = sizers[i];
+  let growLimit = 0;
+  for (let i = index + 1, n = sizers.length; i < n; ++i) {
+    let sizer = sizers[i];
     growLimit += sizer.maxSize - sizer.size;
   }
-  var shrinkLimit = 0;
-  for (var i = 0; i <= index; ++i) {
-    var sizer = sizers[i];
+  let shrinkLimit = 0;
+  for (let i = 0; i <= index; ++i) {
+    let sizer = sizers[i];
     shrinkLimit += sizer.size - sizer.minSize;
   }
   delta = Math.min(delta, growLimit, shrinkLimit);
-  var grow = delta;
-  for (var i = index + 1, n = sizers.length; i < n && grow > 0; ++i) {
-    var sizer = sizers[i];
-    var limit = sizer.maxSize - sizer.size;
+  let grow = delta;
+  for (let i = index + 1, n = sizers.length; i < n && grow > 0; ++i) {
+    let sizer = sizers[i];
+    let limit = sizer.maxSize - sizer.size;
     if (limit >= grow) {
       sizer.sizeHint = sizer.size + grow;
       grow = 0;
@@ -889,10 +991,10 @@ function shrinkSizer(sizers: BoxSizer[], index: number, delta: number): void {
       grow -= limit;
     }
   }
-  var shrink = delta;
-  for (var i = index; i >= 0 && shrink > 0; --i) {
-    var sizer = sizers[i];
-    var limit = sizer.size - sizer.minSize;
+  let shrink = delta;
+  for (let i = index; i >= 0 && shrink > 0; --i) {
+    let sizer = sizers[i];
+    let limit = sizer.size - sizer.minSize;
     if (limit >= shrink) {
       sizer.sizeHint = sizer.size - shrink;
       shrink = 0;
@@ -908,21 +1010,21 @@ function shrinkSizer(sizers: BoxSizer[], index: number, delta: number): void {
  * Normalize an array of positive values.
  */
 function normalize(values: number[]): number[] {
-  var n = values.length;
+  let n = values.length;
   if (n === 0) {
     return [];
   }
-  var sum = 0;
-  for (var i = 0; i < n; ++i) {
+  let sum = 0;
+  for (let i = 0; i < n; ++i) {
     sum += values[i];
   }
-  var result = new Array<number>(n);
+  let result = new Array<number>(n);
   if (sum === 0) {
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
       result[i] = 1 / n;
     }
   } else {
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
       result[i] = values[i] / sum;
     }
   }
