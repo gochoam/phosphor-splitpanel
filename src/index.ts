@@ -35,7 +35,7 @@ import {
 } from 'phosphor-properties';
 
 import {
-  ChildMessage, ResizeMessage, Widget
+  ChildMessage, Panel, ResizeMessage, Widget
 } from 'phosphor-widget';
 
 import './index.css';
@@ -90,10 +90,10 @@ enum Orientation {
 
 
 /**
- * A widget which arranges its children into resizable sections.
+ * A panel which arranges its children into resizable sections.
  */
 export
-class SplitPanel extends Widget {
+class SplitPanel extends Panel {
   /**
    * A convenience alias of the `Horizontal` [[Orientation]].
    */
@@ -113,6 +113,7 @@ class SplitPanel extends Widget {
    * **See also:** [[orientation]]
    */
   static orientationProperty = new Property<SplitPanel, Orientation>({
+    name: 'orientation',
     value: Orientation.Horizontal,
     changed: (owner, old, value) => owner._onOrientationChanged(old, value),
   });
@@ -126,9 +127,10 @@ class SplitPanel extends Widget {
    * **See also:** [[spacing]]
    */
   static spacingProperty = new Property<SplitPanel, number>({
+    name: 'spacing',
     value: 3,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: owner => postMessage(owner, Widget.MsgLayoutRequest),
+    changed: owner => postMessage(owner, Panel.MsgLayoutRequest),
   });
 
   /**
@@ -141,9 +143,10 @@ class SplitPanel extends Widget {
    * **See also:** [[getStretch]], [[setStretch]]
    */
   static stretchProperty = new Property<Widget, number>({
+    name: 'stretch',
     value: 0,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: onStretchChanged,
+    changed: onChildPropertyChanged,
   });
 
   /**
@@ -228,8 +231,8 @@ class SplitPanel extends Widget {
    * #### Notes
    * This is a pure delegate to the [[spacingProperty]].
    */
-  set spacing(size: number) {
-    SplitPanel.spacingProperty.set(this, size);
+  set spacing(value: number) {
+    SplitPanel.spacingProperty.set(this, value);
   }
 
   /**
@@ -259,7 +262,7 @@ class SplitPanel extends Widget {
       sizer.size = hint;
     }
     this._pendingSizes = true;
-    this.update();
+    postMessage(this, Widget.MsgUpdateRequest);
   }
 
   /**
@@ -275,13 +278,13 @@ class SplitPanel extends Widget {
   handleEvent(event: Event): void {
     switch (event.type) {
     case 'mousedown':
-      this._evtMouseDown(<MouseEvent>event);
-      break;
-    case 'mouseup':
-      this._evtMouseUp(<MouseEvent>event);
+      this._evtMouseDown(event as MouseEvent);
       break;
     case 'mousemove':
-      this._evtMouseMove(<MouseEvent>event);
+      this._evtMouseMove(event as MouseEvent);
+      break;
+    case 'mouseup':
+      this._evtMouseUp(event as MouseEvent);
       break;
     }
   }
@@ -295,7 +298,15 @@ class SplitPanel extends Widget {
     this.node.appendChild(msg.child.node);
     this.node.appendChild(getHandle(msg.child).node);
     if (this.isAttached) sendMessage(msg.child, Widget.MsgAfterAttach);
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
+  }
+
+  /**
+   * A message handler invoked on a `'child-moved'` message.
+   */
+  protected onChildMoved(msg: ChildMessage): void {
+    arrays.move(this._sizers, msg.previousIndex, msg.currentIndex);
+    postMessage(this, Panel.MsgLayoutRequest);
   }
 
   /**
@@ -306,37 +317,32 @@ class SplitPanel extends Widget {
     if (this.isAttached) sendMessage(msg.child, Widget.MsgBeforeDetach);
     this.node.removeChild(msg.child.node);
     this.node.removeChild(getHandle(msg.child).node);
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
     resetGeometry(msg.child);
-  }
-
-  /**
-   * A message handler invoked on a `'child-moved'` message.
-   */
-  protected onChildMoved(msg: ChildMessage): void {
-    arrays.move(this._sizers, msg.previousIndex, msg.currentIndex);
-    postMessage(this, Widget.MsgLayoutRequest);
   }
 
   /**
    * A message handler invoked on an `'after-show'` message.
    */
   protected onAfterShow(msg: Message): void {
-    this.update(true);
+    super.onAfterShow(msg);
+    sendMessage(this, Widget.MsgUpdateRequest);
   }
 
   /**
    * A message handler invoked on an `'after-attach'` message.
    */
   protected onAfterAttach(msg: Message): void {
+    super.onAfterAttach(msg);
     this.node.addEventListener('mousedown', this);
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
   }
 
   /**
    * A message handler invoked on a `'before-detach'` message.
    */
   protected onBeforeDetach(msg: Message): void {
+    super.onBeforeDetach(msg);
     this.node.removeEventListener('mousedown', this);
   }
 
@@ -344,14 +350,14 @@ class SplitPanel extends Widget {
    * A message handler invoked on a `'child-shown'` message.
    */
   protected onChildShown(msg: ChildMessage): void {
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
   }
 
   /**
    * A message handler invoked on a `'child-hidden'` message.
    */
   protected onChildHidden(msg: ChildMessage): void {
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
   }
 
   /**
@@ -389,10 +395,11 @@ class SplitPanel extends Widget {
   private _setupGeometry(): void {
     // Update the handles and track the visible widget count.
     let visibleCount = 0;
+    let children = this.children;
     let orientation = this.orientation;
     let lastVisibleHandle: SplitHandle = null;
-    for (let i = 0, n = this.childCount; i < n; ++i) {
-      let widget = this.childAt(i);
+    for (let i = 0, n = children.length; i < n; ++i) {
+      let widget = children.get(i);
       let handle = getHandle(widget);
       handle.hidden = widget.hidden;
       handle.orientation = orientation;
@@ -414,8 +421,8 @@ class SplitPanel extends Widget {
     if (orientation === Orientation.Horizontal) {
       minW = this._fixedSpace;
       maxW = visibleCount > 0 ? minW : maxW;
-      for (let i = 0, n = this.childCount; i < n; ++i) {
-        let widget = this.childAt(i);
+      for (let i = 0, n = children.length; i < n; ++i) {
+        let widget = children.get(i);
         let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
@@ -437,8 +444,8 @@ class SplitPanel extends Widget {
     } else {
       minH = this._fixedSpace;
       maxH = visibleCount > 0 ? minH : maxH;
-      for (let i = 0, n = this.childCount; i < n; ++i) {
-        let widget = this.childAt(i);
+      for (let i = 0, n = children.length; i < n; ++i) {
+        let widget = children.get(i);
         let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
@@ -474,10 +481,10 @@ class SplitPanel extends Widget {
     style.maxHeight = maxH === Infinity ? 'none' : maxH + 'px';
 
     // Notifiy the parent that it should relayout.
-    if (this.parent) sendMessage(this.parent, Widget.MsgLayoutRequest);
+    if (this.parent) sendMessage(this.parent, Panel.MsgLayoutRequest);
 
     // Update the layout for the child widgets.
-    this.update(true);
+    sendMessage(this, Widget.MsgUpdateRequest)
   }
 
   /**
@@ -485,7 +492,8 @@ class SplitPanel extends Widget {
    */
   private _layoutChildren(offsetWidth: number, offsetHeight: number): void {
     // Bail early if their are no children to arrange.
-    if (this.childCount === 0) {
+    let children = this.children;
+    if (children.length === 0) {
       return;
     }
 
@@ -515,34 +523,26 @@ class SplitPanel extends Widget {
     let spacing = this.spacing;
     if (horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
-      for (let i = 0, n = this.childCount; i < n; ++i) {
-        let widget = this.childAt(i);
+      for (let i = 0, n = children.length; i < n; ++i) {
+        let widget = children.get(i);
         if (widget.hidden) {
           continue;
         }
         let size = this._sizers[i].size;
-        let hStyle = getHandle(widget).node.style;
         setGeometry(widget, left, top, size, height);
-        hStyle.top = top + 'px';
-        hStyle.left = left + size + 'px';
-        hStyle.width = spacing + 'px';
-        hStyle.height = height + 'px';
+        getHandle(widget).setGeometry(left + size, top, spacing, height);
         left += size + spacing;
       }
     } else {
       boxCalc(this._sizers, Math.max(0, height - this._fixedSpace));
-      for (let i = 0, n = this.childCount; i < n; ++i) {
-        let widget = this.childAt(i);
+      for (let i = 0, n = children.length; i < n; ++i) {
+        let widget = children.get(i);
         if (widget.hidden) {
           continue;
         }
         let size = this._sizers[i].size;
-        let hStyle = getHandle(widget).node.style;
         setGeometry(widget, left, top, width, size);
-        hStyle.top = top + size + 'px';
-        hStyle.left = left + 'px';
-        hStyle.width = width + 'px';
-        hStyle.height = spacing + 'px';
+        getHandle(widget).setGeometry(left, top + size, width, spacing);
         top += size + spacing;
       }
     }
@@ -555,7 +555,7 @@ class SplitPanel extends Widget {
     if (event.button !== 0) {
       return;
     }
-    let index = this._findHandleIndex(<HTMLElement>event.target);
+    let index = findHandleIndex(this, event.target as HTMLElement);
     if (index === -1) {
       return;
     }
@@ -564,7 +564,7 @@ class SplitPanel extends Widget {
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
     let delta: number;
-    let node = getHandle(this.childAt(index)).node;
+    let node = getHandle(this.children.get(index)).node;
     if (this.orientation === Orientation.Horizontal) {
       delta = event.clientX - node.getBoundingClientRect().left;
     } else {
@@ -572,18 +572,6 @@ class SplitPanel extends Widget {
     }
     let override = overrideCursor(window.getComputedStyle(node).cursor);
     this._pressData = { index: index, delta: delta, override: override };
-  }
-
-  /**
-   * Handle the `'mouseup'` event for the split panel.
-   */
-  private _evtMouseUp(event: MouseEvent): void {
-    if (event.button !== 0) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    this._releaseMouse();
   }
 
   /**
@@ -604,6 +592,18 @@ class SplitPanel extends Widget {
   }
 
   /**
+   * Handle the `'mouseup'` event for the split panel.
+   */
+  private _evtMouseUp(event: MouseEvent): void {
+    if (event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    this._releaseMouse();
+  }
+
+  /**
    * Release the mouse grab for the split panel.
    */
   private _releaseMouse(): void {
@@ -620,11 +620,13 @@ class SplitPanel extends Widget {
    * Move a splitter handle to the specified client position.
    */
   private _moveHandle(index: number, pos: number): void {
-    // Bail if the handle is invalid or hidden.
-    let widget = this.childAt(index);
+    // Bail if the index is invalid.
+    let widget = this.children.get(index);
     if (!widget) {
       return;
     }
+
+    // Bail if the handle is hidden.
     let handle = getHandle(widget);
     if (handle.hidden) {
       return;
@@ -637,6 +639,8 @@ class SplitPanel extends Widget {
     } else {
       delta = pos - handle.node.offsetTop;
     }
+
+    // Bail if there is no handle movement.
     if (delta === 0) {
       return;
     }
@@ -654,23 +658,12 @@ class SplitPanel extends Widget {
       shrinkSizer(this._sizers, index, -delta);
     }
 
-    // Update the layout of the widget items. The message is posted
-    // instead of sent because the mouse move event frequency can
-    // outpace the browser's ability to layout, leading to choppy
-    // handle movement, especially on IE. Posting ensures we don't
-    // try to layout faster than the browser can handle.
-    this.update();
-  }
-
-  /**
-   * Find the index of the split handle which contains the given target.
-   */
-  private _findHandleIndex(target: HTMLElement): number {
-    for (let i = 0, n = this.childCount; i < n; ++i) {
-      let handle = getHandle(this.childAt(i));
-      if (handle.node.contains(target)) return i;
-    }
-    return -1;
+    // Update the layout of the widgets. The message is posted instead
+    // of sent because the mouse move event frequency can outpace the
+    // browser's ability to layout, leading to choppy handle movement,
+    // especially on IE. Posting ensures we don't try to layout faster
+    // than the browser can handle.
+    postMessage(this, Widget.MsgUpdateRequest);
   }
 
   /**
@@ -679,7 +672,7 @@ class SplitPanel extends Widget {
   private _onOrientationChanged(old: Orientation, value: Orientation): void {
     this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
     this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
-    postMessage(this, Widget.MsgLayoutRequest);
+    postMessage(this, Panel.MsgLayoutRequest);
   }
 
   private _fixedSpace = 0;
@@ -772,6 +765,17 @@ class SplitHandle extends NodeWrapper {
     this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
   }
 
+  /**
+   * Set the geometry for the handle.
+   */
+  setGeometry(left: number, top: number, width: number, height: number): void {
+    let style = this.node.style;
+    style.top = top + 'px';
+    style.left = left + 'px';
+    style.width = width + 'px';
+    style.height = height + 'px';
+  }
+
   private _hidden = false;
   private _orientation = Orientation.Horizontal;
 }
@@ -806,7 +810,8 @@ interface IRect {
 /**
  * A private attached property for the split handle for a widget.
  */
-let splitHandleProperty = new Property<Widget, SplitHandle>({
+const splitHandleProperty = new Property<Widget, SplitHandle>({
+  name: 'splitHandle',
   create: owner => new SplitHandle(),
 });
 
@@ -814,7 +819,8 @@ let splitHandleProperty = new Property<Widget, SplitHandle>({
 /**
  * A private attached property which stores a widget offset rect.
  */
-let rectProperty = new Property<Widget, IRect>({
+const rectProperty = new Property<Widget, IRect>({
+  name: 'rect',
   create: createRect,
 });
 
@@ -840,6 +846,19 @@ function createRect(): IRect {
  */
 function getRect(widget: Widget): IRect {
   return rectProperty.get(widget);
+}
+
+
+/**
+ * Find the index of the split handle which contains the given target.
+ */
+function findHandleIndex(panel: SplitPanel, target: HTMLElement): number {
+  let children = panel.children;
+  for (let i = 0, n = children.length; i < n; ++i) {
+    let handle = getHandle(children.get(i));
+    if (handle.node.contains(target)) return i;
+  }
+  return -1;
 }
 
 
@@ -894,11 +913,11 @@ function resetGeometry(widget: Widget): void {
 
 
 /**
- * The change handler for the stretch attached property.
+ * The change handler for the attached child properties.
  */
-function onStretchChanged(child: Widget, old: number, value: number): void {
+function onChildPropertyChanged(child: Widget): void {
   if (child.parent instanceof SplitPanel) {
-    postMessage(child.parent, Widget.MsgLayoutRequest);
+    postMessage(child.parent, Panel.MsgLayoutRequest);
   }
 }
 
