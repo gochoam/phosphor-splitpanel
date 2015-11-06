@@ -4,7 +4,7 @@ phosphor-splitpanel
 [![Build Status](https://travis-ci.org/phosphorjs/phosphor-splitpanel.svg)](https://travis-ci.org/phosphorjs/phosphor-splitpanel?branch=master)
 [![Coverage Status](https://coveralls.io/repos/phosphorjs/phosphor-splitpanel/badge.svg?branch=master&service=github)](https://coveralls.io/github/phosphorjs/phosphor-splitpanel?branch=master)
 
-A Phosphor layout widget which arranges its children into resizable sections.
+A Phosphor layout panel which arranges its children into resizable sections.
 
 [API Docs](http://phosphorjs.github.io/phosphor-splitpanel/api/)
 
@@ -110,15 +110,19 @@ Usage Examples
 omit the type declarations when using a language other than TypeScript.
 
 ```typescript
-import { SplitPanel } from 'phosphor-splitpanel';
+import {
+  SplitPanel
+} from 'phosphor-splitpanel';
 
-import { Widget } from 'phosphor-widget';
+import {
+  Widget
+} from 'phosphor-widget';
 
 
 // Create some content for the panel.
-var w1 = new Widget();
-var w2 = new Widget();
-var w3 = new Widget();
+let w1 = new Widget();
+let w2 = new Widget();
+let w3 = new Widget();
 
 // Set the widget stretch factors (optional).
 SplitPanel.setStretch(w1, 0);
@@ -126,16 +130,16 @@ SplitPanel.setStretch(w2, 2);
 SplitPanel.setStretch(w3, 1);
 
 // Setup the split panel.
-var sp = new SplitPanel();
-sp.orientation = SplitPanel.Horizontal;
-sp.handleSize = 5;
-sp.children = [w1, w2, w3];
+let panel = new SplitPanel();
+panel.handleSize = 5;
+panel.orientation = SplitPanel.Horizontal;
+panel.children.assign([w1, w2, w3]);
 
 // sometime later...
 
-// Get the relative widget sizes.
-var size = sp.sizes();
+// Get the normalized relative widget sizes.
+let sizes = panel.sizes();
 
 // Set the relative widget sizes.
-sp.setSizes([2, 4, 1]);
+panel.setSizes([2, 4, 1]);
 ```
