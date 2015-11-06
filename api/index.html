@@ -68,7 +68,7 @@
 				<h1 id="phosphor-splitpanel">phosphor-splitpanel</h1>
 				<p><a href="https://travis-ci.org/phosphorjs/phosphor-splitpanel?branch=master"><img src="https://travis-ci.org/phosphorjs/phosphor-splitpanel.svg" alt="Build Status"></a>
 				<a href="https://coveralls.io/github/phosphorjs/phosphor-splitpanel?branch=master"><img src="https://coveralls.io/repos/phosphorjs/phosphor-splitpanel/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a></p>
-				<p>A Phosphor layout widget which arranges its children into resizable sections.</p>
+				<p>A Phosphor layout panel which arranges its children into resizable sections.</p>
 				<p><a href="http://phosphorjs.github.io/phosphor-splitpanel/api/">API Docs</a></p>
 				<h2 id="package-install">Package Install</h2>
 				<p><strong>Prerequisites</strong></p>
@@ -128,15 +128,19 @@ browserify myapp.js -o mybundle.js
 				<h2 id="usage-examples">Usage Examples</h2>
 				<p><strong>Note:</strong> This module is fully compatible with Node/Babel/ES6/ES5. Simply
 				omit the type declarations when using a language other than TypeScript.</p>
-				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> { SplitPanel } from <span class="hljs-string">'phosphor-splitpanel'</span>;
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {
+  SplitPanel
+} from <span class="hljs-string">'phosphor-splitpanel'</span>;
 
-<span class="hljs-keyword">import</span> { Widget } from <span class="hljs-string">'phosphor-widget'</span>;
+<span class="hljs-keyword">import</span> {
+  Widget
+} from <span class="hljs-string">'phosphor-widget'</span>;
 
 
 <span class="hljs-comment">// Create some content for the panel.</span>
-<span class="hljs-keyword">var</span> w1 = <span class="hljs-keyword">new</span> Widget();
-<span class="hljs-keyword">var</span> w2 = <span class="hljs-keyword">new</span> Widget();
-<span class="hljs-keyword">var</span> w3 = <span class="hljs-keyword">new</span> Widget();
+<span class="hljs-keyword">let</span> w1 = <span class="hljs-keyword">new</span> Widget();
+<span class="hljs-keyword">let</span> w2 = <span class="hljs-keyword">new</span> Widget();
+<span class="hljs-keyword">let</span> w3 = <span class="hljs-keyword">new</span> Widget();
 
 <span class="hljs-comment">// Set the widget stretch factors (optional).</span>
 SplitPanel.setStretch(w1, <span class="hljs-number">0</span>);
@@ -144,18 +148,18 @@ SplitPanel.setStretch(w2, <span class="hljs-number">2</span>);
 SplitPanel.setStretch(w3, <span class="hljs-number">1</span>);
 
 <span class="hljs-comment">// Setup the split panel.</span>
-<span class="hljs-keyword">var</span> sp = <span class="hljs-keyword">new</span> SplitPanel();
-sp.orientation = SplitPanel.Horizontal;
-sp.handleSize = <span class="hljs-number">5</span>;
-sp.children = [w1, w2, w3];
+<span class="hljs-keyword">let</span> panel = <span class="hljs-keyword">new</span> SplitPanel();
+panel.handleSize = <span class="hljs-number">5</span>;
+panel.orientation = SplitPanel.Horizontal;
+panel.children.assign([w1, w2, w3]);
 
 <span class="hljs-comment">// sometime later...</span>
 
-<span class="hljs-comment">// Get the relative widget sizes.</span>
-<span class="hljs-keyword">var</span> size = sp.sizes();
+<span class="hljs-comment">// Get the normalized relative widget sizes.</span>
+<span class="hljs-keyword">let</span> sizes = panel.sizes();
 
 <span class="hljs-comment">// Set the relative widget sizes.</span>
-sp.setSizes([<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>]);
+panel.setSizes([<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>]);
 </code></pre>
 			</div>
 		</div>
