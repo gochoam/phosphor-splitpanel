@@ -8,12 +8,12 @@
 'use-strict';
 
 import {
-  SplitPanel
-} from '../lib/index';
-
-import {
   Widget
 } from 'phosphor-widget';
+
+import {
+  SplitPanel
+} from '../lib/index';
 
 import './index.css';
 
@@ -41,15 +41,15 @@ function main(): void {
 
   let sp3 = new SplitPanel();
   sp3.orientation = SplitPanel.Vertical;
-  sp3.children = [red1, green1, blue1];
+  sp3.children.assign([red1, green1, blue1]);
 
   let sp2 = new SplitPanel();
   sp2.orientation = SplitPanel.Horizontal;
-  sp2.children = [sp3, yellow1, red2];
+  sp2.children.assign([sp3, yellow1, red2]);
 
   let sp1 = new SplitPanel();
   sp1.orientation = SplitPanel.Vertical;
-  sp1.children = [yellow2, blue2, sp2, green2];
+  sp1.children.assign([yellow2, blue2, sp2, green2]);
   sp1.id = 'main';
 
   Widget.attach(sp1, document.body);
