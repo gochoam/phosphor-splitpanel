@@ -18,7 +18,7 @@ import {
 } from 'phosphor-properties';
 
 import {
-  ResizeMessage, Widget
+  Panel, ResizeMessage, Widget
 } from 'phosphor-widget';
 
 import {
@@ -86,6 +86,10 @@ describe('phosphor-splitpanel', () => {
         expect(SplitPanel.orientationProperty instanceof Property).to.be(true);
       });
 
+      it('should have the name `orientation`', () => {
+        expect(SplitPanel.orientationProperty.name).to.be('orientation');
+      });
+
       it('should default to `Horizontal`', () => {
         let panel = new SplitPanel();
         let orientation = SplitPanel.orientationProperty.get(panel);
@@ -119,6 +123,10 @@ describe('phosphor-splitpanel', () => {
         expect(SplitPanel.spacingProperty instanceof Property).to.be(true);
       });
 
+      it('should have the name `spacing`', () => {
+        expect(SplitPanel.spacingProperty.name).to.be('spacing');
+      });
+
       it('should default to `3`', () => {
         let panel = new SplitPanel();
         expect(SplitPanel.spacingProperty.get(panel)).to.be(3);
@@ -142,6 +150,10 @@ describe('phosphor-splitpanel', () => {
         expect(SplitPanel.stretchProperty instanceof Property).to.be(true);
       });
 
+      it('should have the name `stretch`', () => {
+        expect(SplitPanel.stretchProperty.name).to.be('stretch');
+      });
+
       it('should default to `0`', () => {
         let widget = new Widget();
         expect(SplitPanel.stretchProperty.get(widget)).to.be(0);
@@ -150,7 +162,7 @@ describe('phosphor-splitpanel', () => {
       it('should post a `layout-request`', (done) => {
         let panel = new LogPanel();
         let widget = new Widget();
-        panel.addChild(widget);
+        panel.children.add(widget);
         clearMessageData(panel);
         SplitPanel.stretchProperty.set(widget, 4);
         expect(panel.messages.indexOf('layout-request')).to.be(-1);
@@ -211,7 +223,7 @@ describe('phosphor-splitpanel', () => {
 
       it('should dispose of the resources held by the panel', () => {
         let panel = new SplitPanel();
-        panel.children = [new Widget(), new Widget()];
+        panel.children.assign([new Widget(), new Widget()]);
         panel.dispose();
         expect(panel.isDisposed).to.be(true);
         expect(panel.sizes.length).to.be(0);
@@ -272,7 +284,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new SplitPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         expect(panel.sizes()).to.eql([0.5, 0.5]);
         panel.setSizes([2, 3]);
         expect(panel.sizes()).to.eql([0.4, 0.6]);
@@ -286,7 +298,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         Widget.attach(panel, document.body);
         panel.setSizes([1, 4]);
         expect(panel.sizes()).to.eql([0.2, 0.8]);
@@ -300,7 +312,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new LogWidget();
         Widget.attach(panel, document.body);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         expect(panel.messages.indexOf('child-added')).to.not.be(-1);
       });
 
@@ -308,7 +320,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new LogWidget();
         Widget.attach(panel, document.body);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         expect(widget.messages.indexOf('after-attach')).to.not.be(-1);
       });
 
@@ -317,7 +329,7 @@ describe('phosphor-splitpanel', () => {
         let widget = new LogWidget();
         Widget.attach(panel, document.body);
         expect(panel.messages.indexOf('layout-request')).to.be(-1);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
           done();
@@ -332,9 +344,9 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new Widget();
         Widget.attach(panel, document.body);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         expect(panel.messages.indexOf('child-removed')).to.be(-1);
-        panel.children = [];
+        panel.children.assign([]);
         expect(panel.messages.indexOf('child-removed')).to.not.be(-1);
       });
 
@@ -342,9 +354,9 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new LogWidget();
         Widget.attach(panel, document.body);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         expect(widget.messages.indexOf('before-detach')).to.be(-1);
-        panel.children = [];
+        panel.children.assign([]);
         expect(widget.messages.indexOf('before-detach')).to.not.be(-1);
       });
 
@@ -352,10 +364,10 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new Widget();
         Widget.attach(panel, document.body);
-        panel.children = [widget];
+        panel.children.assign([widget]);
         clearMessageData(panel);
         panel.messages = [];
-        panel.children = [];
+        panel.children.assign([]);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
           done();
@@ -370,10 +382,10 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         Widget.attach(panel, document.body);
         panel.messages = [];
-        panel.moveChild(1, 0);
+        panel.children.move(1, 0);
         expect(panel.messages.indexOf('child-moved')).to.not.be(-1);
       });
 
@@ -381,11 +393,11 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.setSizes([0.3, 0.7]);
         Widget.attach(panel, document.body);
         panel.messages = [];
-        panel.moveChild(1, 0);
+        panel.children.move(1, 0);
         expect(panel.sizes()).to.eql([0.7, 0.3]);
       });
 
@@ -393,11 +405,11 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         Widget.attach(panel, document.body);
         clearMessageData(panel);
         panel.messages = [];
-        panel.moveChild(1, 0);
+        panel.children.move(1, 0);
         requestAnimationFrame(() => {
           expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
           done();
@@ -451,7 +463,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget = new Widget();
         widget.hidden = true;
-        panel.children = [widget];
+        panel.children.assign([widget]);
         Widget.attach(panel, document.body);
         clearMessageData(panel);
         panel.messages = [];
@@ -469,7 +481,7 @@ describe('phosphor-splitpanel', () => {
       it('should post a `layout-request`', (done) => {
         let panel = new LogPanel();
         let widget = new Widget();
-        panel.children = [widget];
+        panel.children.assign([widget]);
         Widget.attach(panel, document.body);
         clearMessageData(panel);
         panel.messages = [];
@@ -504,14 +516,14 @@ describe('phosphor-splitpanel', () => {
         let child0 = new Widget();
         let child1 = new Widget();
         panel.orientation = Orientation.Vertical;
-        panel.children = [child0, child1];
+        panel.children.assign([child0, child1]);
         Widget.attach(panel, document.body);
         panel.node.style.position = 'absolute';
         panel.node.style.top = '0px';
         panel.node.style.left = '0px';
         panel.node.style.width = '0px';
         panel.node.style.height = '0px';
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         panel.node.style.width = '101px';
         panel.node.style.height = '101px';
         sendMessage(panel, new ResizeMessage(101, 101));
@@ -531,7 +543,7 @@ describe('phosphor-splitpanel', () => {
 
       it('should be invoked on an `update-request` message', () => {
         let panel = new LogPanel();
-        panel.update(true);
+        sendMessage(panel, Widget.MsgUpdateRequest);
         expect(panel.messages.indexOf('update-request')).to.not.be(-1);
       });
 
@@ -540,17 +552,17 @@ describe('phosphor-splitpanel', () => {
         let child0 = new Widget();
         let child1 = new Widget();
         panel.orientation = Orientation.Vertical;
-        panel.children = [child0, child1];
+        panel.children.assign([child0, child1]);
         Widget.attach(panel, document.body);
         panel.node.style.position = 'absolute';
         panel.node.style.top = '0px';
         panel.node.style.left = '0px';
         panel.node.style.width = '0px';
         panel.node.style.height = '0px';
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         panel.node.style.width = '201px';
         panel.node.style.height = '201px';
-        panel.update(true);
+        sendMessage(panel, Widget.MsgUpdateRequest);
         expect(child0.node.offsetTop).to.be(0);
         expect(child0.node.offsetLeft).to.be(0);
         expect(child0.node.offsetWidth).to.be(201);
@@ -567,7 +579,7 @@ describe('phosphor-splitpanel', () => {
 
       it('should be invoked on a `layout-request` message', () => {
         let panel = new LogPanel();
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         expect(panel.messages.indexOf('layout-request')).to.not.be(-1);
       });
 
@@ -579,7 +591,7 @@ describe('phosphor-splitpanel', () => {
         clearMessageData(panel1);
         clearMessageData(panel2);
         expect(panel1.messages.indexOf('layout-request')).to.be(-1);
-        sendMessage(panel2, Widget.MsgLayoutRequest);
+        sendMessage(panel2, Panel.MsgLayoutRequest);
         expect(panel1.messages.indexOf('layout-request')).to.not.be(-1);
       });
 
@@ -588,11 +600,11 @@ describe('phosphor-splitpanel', () => {
         let child = new Widget();
         child.node.style.minWidth = '50px';
         child.node.style.minHeight = '50px';
-        panel.children = [child];
+        panel.children.assign([child]);
         Widget.attach(panel, document.body);
         expect(panel.node.style.minWidth).to.be('');
         expect(panel.node.style.minHeight).to.be('');
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         expect(panel.node.style.minWidth).to.be('50px');
         expect(panel.node.style.minHeight).to.be('50px');
       });
@@ -605,7 +617,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
           let handle = panel.node.children[1] as HTMLElement;
@@ -630,7 +642,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
           let handle = panel.node.children[1] as HTMLElement;
@@ -646,7 +658,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.orientation = Orientation.Vertical;
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
@@ -665,7 +677,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.orientation = Orientation.Vertical;
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
@@ -681,7 +693,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.orientation = Orientation.Vertical;
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
@@ -702,7 +714,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.orientation = Orientation.Vertical;
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
@@ -723,7 +735,7 @@ describe('phosphor-splitpanel', () => {
         let panel = new LogPanel();
         let widget0 = new Widget();
         let widget1 = new Widget();
-        panel.children = [widget0, widget1];
+        panel.children.assign([widget0, widget1]);
         panel.orientation = Orientation.Vertical;
         Widget.attach(panel, document.body);
         requestAnimationFrame(() => {
@@ -754,14 +766,14 @@ describe('phosphor-splitpanel', () => {
         panel.orientation = Orientation.Horizontal;
         child0.node.style.minWidth = '30px';
         child1.node.style.minHeight = '50px';
-        panel.children = [child0, child1, child2];
+        panel.children.assign([child0, child1, child2]);
         Widget.attach(panel, document.body);
         panel.node.style.position = 'absolute';
         panel.node.style.top = '0px';
         panel.node.style.left = '0px';
         panel.node.style.width = '0px';
         panel.node.style.height = '0px';
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         panel.node.style.width = '50px';
         panel.node.style.height = '100px';
         sendMessage(panel, new ResizeMessage(50, 100));
@@ -787,14 +799,14 @@ describe('phosphor-splitpanel', () => {
         panel.orientation = Orientation.Vertical;
         child0.node.style.minWidth = '30px';
         child1.node.style.minHeight = '50px';
-        panel.children = [child0, child1, child2];
+        panel.children.assign([child0, child1, child2]);
         Widget.attach(panel, document.body);
         panel.node.style.position = 'absolute';
         panel.node.style.top = '0px';
         panel.node.style.left = '0px';
         panel.node.style.width = '0px';
         panel.node.style.height = '0px';
-        sendMessage(panel, Widget.MsgLayoutRequest);
+        sendMessage(panel, Panel.MsgLayoutRequest);
         panel.node.style.width = '100px';
         panel.node.style.height = '70px';
         sendMessage(panel, new ResizeMessage(100, 70));
