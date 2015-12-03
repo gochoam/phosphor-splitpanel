@@ -289,6 +289,13 @@ class SplitPanel extends Panel {
     case 'mouseup':
       this._evtMouseUp(event as MouseEvent);
       break;
+    case 'keyup':
+    case 'keypress':
+    case 'contextmenu':
+      // Stop all input events during resize.
+      event.preventDefault();
+      event.stopPropagation();
+      break;
     }
   }
 
@@ -577,6 +584,9 @@ class SplitPanel extends Panel {
     event.preventDefault();
     event.stopPropagation();
     document.addEventListener('keydown', this, true);
+    document.addEventListener('keyup', this, true);
+    document.addEventListener('keypress', this, true);
+    document.addEventListener('contextmenu', this, true);
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
     let delta: number;
@@ -629,6 +639,9 @@ class SplitPanel extends Panel {
     this._pressData.override.dispose();
     this._pressData = null;
     document.removeEventListener('keydown', this, true);
+    document.removeEventListener('keyup', this, true);
+    document.removeEventListener('keypress', this, true);
+    document.removeEventListener('contextmenu', this, true);
     document.removeEventListener('mouseup', this, true);
     document.removeEventListener('mousemove', this, true);
   }
