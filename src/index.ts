@@ -277,6 +277,9 @@ class SplitPanel extends Panel {
    */
   handleEvent(event: Event): void {
     switch (event.type) {
+    case 'keydown':
+      this._evtKeyDown(event as KeyboardEvent);
+      break;
     case 'mousedown':
       this._evtMouseDown(event as MouseEvent);
       break;
@@ -549,6 +552,18 @@ class SplitPanel extends Panel {
   }
 
   /**
+   * Handle the `'keydown'` event for the split panel.
+   */
+  private _evtKeyDown(event: KeyboardEvent): void {
+    // Stop all input events during resize.
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Release the mouse if `Escape` is pressed.
+    if (event.keyCode === 27) this._releaseMouse();
+  }
+
+  /**
    * Handle the `'mousedown'` event for the split panel.
    */
   private _evtMouseDown(event: MouseEvent): void {
@@ -561,6 +576,7 @@ class SplitPanel extends Panel {
     }
     event.preventDefault();
     event.stopPropagation();
+    document.addEventListener('keydown', this, true);
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
     let delta: number;
@@ -612,6 +628,7 @@ class SplitPanel extends Panel {
     }
     this._pressData.override.dispose();
     this._pressData = null;
+    document.removeEventListener('keydown', this, true);
     document.removeEventListener('mouseup', this, true);
     document.removeEventListener('mousemove', this, true);
   }
