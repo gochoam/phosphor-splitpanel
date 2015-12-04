@@ -60,6 +60,13 @@ function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = 
 }
 
 
+function triggerKeyboardEvent(node: HTMLElement, eventType: string, options: any = {}) {
+  options.bubbles = true;
+  let keyboardEvent = new KeyboardEvent(eventType, options);
+  node.dispatchEvent(keyboardEvent);
+}
+
+
 describe('phosphor-splitpanel', () => {
 
   describe('SplitPanel', () => {
@@ -728,6 +735,56 @@ describe('phosphor-splitpanel', () => {
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
           expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
+      it('should ignore keyboard input on resize', (done) => {
+        let panel = new LogPanel();
+        let widget0 = new Widget();
+        let widget1 = new Widget();
+        panel.children.assign([widget0, widget1]);
+        panel.orientation = Orientation.Vertical;
+        Widget.attach(panel, document.body);
+        requestAnimationFrame(() => {
+          let handle = panel.node.children[1] as HTMLElement;
+          let left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
+          triggerKeyboardEvent(document.body, 'keydown', { keyCode: 65 });
+          triggerKeyboardEvent(document.body, 'keyup', { keyCode: 65 });
+          triggerKeyboardEvent(document.body, 'keypress', { keyCode: 65 });
+          triggerMouseEvent(handle, 'mouseup');
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('keydown')).to.not.be(-1);
+          expect(panel.messages.indexOf('keyup')).to.not.be(-1);
+          expect(panel.messages.indexOf('keypress')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
+      it('should release mouse if ESC key is pressed during resize', (done) => {
+        let panel = new LogPanel();
+        let widget0 = new Widget();
+        let widget1 = new Widget();
+        panel.children.assign([widget0, widget1]);
+        panel.orientation = Orientation.Vertical;
+        Widget.attach(panel, document.body);
+        requestAnimationFrame(() => {
+          let handle = panel.node.children[1] as HTMLElement;
+          let left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
+          triggerKeyboardEvent(document.body, 'keydown', { keyCode: 27 });
+          triggerMouseEvent(handle, 'mouseup');
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('keydown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.be(-1);
           expect(handle.offsetLeft).to.be(left);
           done();
         });
