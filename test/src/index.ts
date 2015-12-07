@@ -77,21 +77,13 @@ function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = 
 }
 
 
-function triggerKeyboardEvent(node: HTMLElement, eventType: string, keyCode: number) {
-  let keyboardEvent = document.createEvent('KeyboardEvent');
-  (keyboardEvent as any).initKeyEvent(
-    eventType, // typeArg,
-    true,      // canBubbleArg,
-    true,      // cancelableArg,
-    null,      // viewArg
-    false,     // ctrlKeyArg,
-    false,     // altKeyArg,
-    false,     // shiftKeyArg,
-    false,     // metaKeyArg,
-    keyCode,   // keyCodeArg,
-    0          // charCodeArg
-  );
-  node.dispatchEvent(keyboardEvent);
+function triggerKeyEvent(node: HTMLElement, eventType: string, options: any = {}) {
+  let event = document.createEvent('Event');
+  event.initEvent(eventType, true, true);
+  for (let prop in options) {
+    (<any>event)[prop] = options[prop];
+  }
+  node.dispatchEvent(event);
 }
 
 
@@ -780,9 +772,9 @@ describe('phosphor-splitpanel', () => {
           let left = handle.offsetLeft;
           triggerMouseEvent(handle, 'mousedown');
           triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
-          triggerKeyboardEvent(document.body, 'keydown', 65);
-          triggerKeyboardEvent(document.body, 'keyup', 65);
-          triggerKeyboardEvent(document.body, 'keypress', 65);
+          triggerKeyEvent(document.body, 'keydown', { keyCode: 65 });
+          triggerKeyEvent(document.body, 'keyup', { keyCode: 65 });
+          triggerKeyEvent(document.body, 'keypress', { keyCode: 65 });
           triggerMouseEvent(handle, 'mouseup');
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
@@ -807,7 +799,7 @@ describe('phosphor-splitpanel', () => {
           let left = handle.offsetLeft;
           triggerMouseEvent(handle, 'mousedown');
           triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
-          triggerKeyboardEvent(document.body, 'keydown', 27);
+          triggerKeyEvent(document.body, 'keydown', { keyCode: 27 });
           triggerMouseEvent(handle, 'mouseup');
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
