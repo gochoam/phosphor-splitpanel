@@ -78,8 +78,8 @@ function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = 
 
 
 function triggerKeyboardEvent(node: HTMLElement, eventType: string, keyCode: number) {
-  let keyEvent = document.createEvent('KeyboardEvent');
-  (keyEvent as any).initKeyEvent(
+  let keyboardEvent = document.createEvent('KeyboardEvent');
+  (keyboardEvent as any).initKeyEvent(
     eventType, // typeArg,
     true,      // canBubbleArg,
     true,      // cancelableArg,
@@ -91,7 +91,7 @@ function triggerKeyboardEvent(node: HTMLElement, eventType: string, keyCode: num
     keyCode,   // keyCodeArg,
     0          // charCodeArg
   );
-  node.dispatchEvent(keyEvent);
+  node.dispatchEvent(keyboardEvent);
 }
 
 
