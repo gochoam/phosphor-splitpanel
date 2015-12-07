@@ -115,7 +115,7 @@ class SplitPanel extends Panel {
   static orientationProperty = new Property<SplitPanel, Orientation>({
     name: 'orientation',
     value: Orientation.Horizontal,
-    changed: (owner, old, value) => owner._onOrientationChanged(old, value)
+    changed: (owner, old, value) => owner._onOrientationChanged(old, value),
   });
 
   /**
@@ -130,7 +130,7 @@ class SplitPanel extends Panel {
     name: 'spacing',
     value: 3,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: owner => postMessage(owner, Panel.MsgLayoutRequest)
+    changed: owner => postMessage(owner, Panel.MsgLayoutRequest),
   });
 
   /**
@@ -146,7 +146,7 @@ class SplitPanel extends Panel {
     name: 'stretch',
     value: 0,
     coerce: (owner, value) => Math.max(0, value | 0),
-    changed: onChildPropertyChanged
+    changed: onChildPropertyChanged,
   });
 
   /**
@@ -842,7 +842,7 @@ interface IRect {
  */
 const splitHandleProperty = new Property<Widget, SplitHandle>({
   name: 'splitHandle',
-  create: owner => new SplitHandle()
+  create: owner => new SplitHandle(),
 });
 
 
@@ -851,7 +851,7 @@ const splitHandleProperty = new Property<Widget, SplitHandle>({
  */
 const rectProperty = new Property<Widget, IRect>({
   name: 'rect',
-  create: createRect
+  create: createRect,
 });
 
 
