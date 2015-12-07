@@ -55,15 +55,43 @@ class LogWidget extends Widget {
 
 function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = {}) {
   options.bubbles = true;
-  let clickEvent = new MouseEvent(eventType, options);
+  let clickEvent = document.createEvent('MouseEvent');
+  clickEvent.initMouseEvent(
+    eventType,
+    options.bubbles,
+    options.cancelable,
+    options.view,
+    options.detail,
+    options.screenX,
+    options.screenY,
+    options.clientX,
+    options.clientY,
+    options.ctrlKey,
+    options.altKey,
+    options.shiftKey,
+    options.metaKey,
+    options.button,
+    options.relatedTarget
+  );
   node.dispatchEvent(clickEvent);
 }
 
 
-function triggerKeyboardEvent(node: HTMLElement, eventType: string, options: any = {}) {
-  options.bubbles = true;
-  let keyboardEvent = new KeyboardEvent(eventType, options);
-  node.dispatchEvent(keyboardEvent);
+function triggerKeyboardEvent(node: HTMLElement, eventType: string, keyCode: number) {
+  let keyEvent = document.createEvent('KeyboardEvent');
+  (keyEvent as any).initKeyEvent(
+    eventType, // typeArg,
+    true,      // canBubbleArg,
+    true,      // cancelableArg,
+    null,      // viewArg
+    false,     // ctrlKeyArg,
+    false,     // altKeyArg,
+    false,     // shiftKeyArg,
+    false,     // metaKeyArg,
+    keyCode,   // keyCodeArg,
+    0          // charCodeArg
+  );
+  node.dispatchEvent(keyEvent);
 }
 
 
@@ -752,9 +780,9 @@ describe('phosphor-splitpanel', () => {
           let left = handle.offsetLeft;
           triggerMouseEvent(handle, 'mousedown');
           triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
-          triggerKeyboardEvent(document.body, 'keydown', { keyCode: 65 });
-          triggerKeyboardEvent(document.body, 'keyup', { keyCode: 65 });
-          triggerKeyboardEvent(document.body, 'keypress', { keyCode: 65 });
+          triggerKeyboardEvent(document.body, 'keydown', 65);
+          triggerKeyboardEvent(document.body, 'keyup', 65);
+          triggerKeyboardEvent(document.body, 'keypress', 65);
           triggerMouseEvent(handle, 'mouseup');
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
@@ -779,7 +807,7 @@ describe('phosphor-splitpanel', () => {
           let left = handle.offsetLeft;
           triggerMouseEvent(handle, 'mousedown');
           triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
-          triggerKeyboardEvent(document.body, 'keydown', { keyCode: 27 });
+          triggerKeyboardEvent(document.body, 'keydown', 27);
           triggerMouseEvent(handle, 'mouseup');
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
