@@ -55,8 +55,35 @@ class LogWidget extends Widget {
 
 function triggerMouseEvent(node: HTMLElement, eventType: string, options: any = {}) {
   options.bubbles = true;
-  let clickEvent = new MouseEvent(eventType, options);
+  let clickEvent = document.createEvent('MouseEvent');
+  clickEvent.initMouseEvent(
+    eventType,
+    options.bubbles,
+    options.cancelable,
+    options.view,
+    options.detail,
+    options.screenX,
+    options.screenY,
+    options.clientX,
+    options.clientY,
+    options.ctrlKey,
+    options.altKey,
+    options.shiftKey,
+    options.metaKey,
+    options.button,
+    options.relatedTarget
+  );
   node.dispatchEvent(clickEvent);
+}
+
+
+function triggerKeyEvent(node: HTMLElement, eventType: string, options: any = {}) {
+  let event = document.createEvent('Event');
+  event.initEvent(eventType, true, true);
+  for (let prop in options) {
+    (<any>event)[prop] = options[prop];
+  }
+  node.dispatchEvent(event);
 }
 
 
@@ -701,9 +728,11 @@ describe('phosphor-splitpanel', () => {
           let left = handle.offsetLeft;
           triggerMouseEvent(handle, 'mousedown');
           triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
+          triggerMouseEvent(document.body, 'contextmenu');
           triggerMouseEvent(handle, 'mouseup');
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('contextmenu')).to.not.be(-1);
           expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
           expect(handle.offsetLeft).to.be(left);
           done();
@@ -726,6 +755,56 @@ describe('phosphor-splitpanel', () => {
           expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
           expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
           expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
+      it('should ignore keyboard input on resize', (done) => {
+        let panel = new LogPanel();
+        let widget0 = new Widget();
+        let widget1 = new Widget();
+        panel.children.assign([widget0, widget1]);
+        panel.orientation = Orientation.Vertical;
+        Widget.attach(panel, document.body);
+        requestAnimationFrame(() => {
+          let handle = panel.node.children[1] as HTMLElement;
+          let left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
+          triggerKeyEvent(document.body, 'keydown', { keyCode: 65 });
+          triggerKeyEvent(document.body, 'keyup', { keyCode: 65 });
+          triggerKeyEvent(document.body, 'keypress', { keyCode: 65 });
+          triggerMouseEvent(handle, 'mouseup');
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('keydown')).to.not.be(-1);
+          expect(panel.messages.indexOf('keyup')).to.not.be(-1);
+          expect(panel.messages.indexOf('keypress')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.not.be(-1);
+          expect(handle.offsetLeft).to.be(left);
+          done();
+        });
+      });
+
+      it('should release mouse if ESC key is pressed during resize', (done) => {
+        let panel = new LogPanel();
+        let widget0 = new Widget();
+        let widget1 = new Widget();
+        panel.children.assign([widget0, widget1]);
+        panel.orientation = Orientation.Vertical;
+        Widget.attach(panel, document.body);
+        requestAnimationFrame(() => {
+          let handle = panel.node.children[1] as HTMLElement;
+          let left = handle.offsetLeft;
+          triggerMouseEvent(handle, 'mousedown');
+          triggerMouseEvent(handle, 'mousemove', { button: 1, clientY: 10 });
+          triggerKeyEvent(document.body, 'keydown', { keyCode: 27 });
+          triggerMouseEvent(handle, 'mouseup');
+          expect(panel.messages.indexOf('mousedown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mousemove')).to.not.be(-1);
+          expect(panel.messages.indexOf('keydown')).to.not.be(-1);
+          expect(panel.messages.indexOf('mouseup')).to.be(-1);
           expect(handle.offsetLeft).to.be(left);
           done();
         });
