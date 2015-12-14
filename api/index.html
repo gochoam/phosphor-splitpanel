@@ -151,7 +151,9 @@ SplitPanel.setStretch(w3, <span class="hljs-number">1</span>);
 <span class="hljs-keyword">let</span> panel = <span class="hljs-keyword">new</span> SplitPanel();
 panel.handleSize = <span class="hljs-number">5</span>;
 panel.orientation = SplitPanel.Horizontal;
-panel.children.assign([w1, w2, w3]);
+panel.addChild(w1);
+panel.addChild(w2);
+panel.addChild(w3);
 
 <span class="hljs-comment">// sometime later...</span>
 
