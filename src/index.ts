@@ -35,7 +35,7 @@ import {
 } from 'phosphor-properties';
 
 import {
-  ChildMessage, Panel, ResizeMessage, Widget
+  ChildIndexMessage, ChildMessage, Panel, ResizeMessage, Widget
 } from 'phosphor-widget';
 
 import './index.css';
@@ -302,7 +302,7 @@ class SplitPanel extends Panel {
   /**
    * A message handler invoked on a `'child-added'` message.
    */
-  protected onChildAdded(msg: ChildMessage): void {
+  protected onChildAdded(msg: ChildIndexMessage): void {
     let sizer = createSizer(averageSize(this._sizers));
     arrays.insert(this._sizers, msg.currentIndex, sizer);
     this.node.appendChild(msg.child.node);
@@ -314,7 +314,7 @@ class SplitPanel extends Panel {
   /**
    * A message handler invoked on a `'child-moved'` message.
    */
-  protected onChildMoved(msg: ChildMessage): void {
+  protected onChildMoved(msg: ChildIndexMessage): void {
     arrays.move(this._sizers, msg.previousIndex, msg.currentIndex);
     postMessage(this, Panel.MsgLayoutRequest);
   }
@@ -322,7 +322,7 @@ class SplitPanel extends Panel {
   /**
    * A message handler invoked on a `'child-removed'` message.
    */
-  protected onChildRemoved(msg: ChildMessage): void {
+  protected onChildRemoved(msg: ChildIndexMessage): void {
     arrays.removeAt(this._sizers, msg.previousIndex);
     if (this.isAttached) sendMessage(msg.child, Widget.MsgBeforeDetach);
     this.node.removeChild(msg.child.node);
@@ -405,11 +405,10 @@ class SplitPanel extends Panel {
   private _setupGeometry(): void {
     // Update the handles and track the visible widget count.
     let visibleCount = 0;
-    let children = this.children;
     let orientation = this.orientation;
     let lastVisibleHandle: SplitHandle = null;
-    for (let i = 0, n = children.length; i < n; ++i) {
-      let widget = children.get(i);
+    for (let i = 0, n = this.childCount(); i < n; ++i) {
+      let widget = this.childAt(i);
       let handle = getHandle(widget);
       handle.hidden = widget.hidden;
       handle.orientation = orientation;
@@ -431,8 +430,8 @@ class SplitPanel extends Panel {
     if (orientation === Orientation.Horizontal) {
       minW = this._fixedSpace;
       maxW = visibleCount > 0 ? minW : maxW;
-      for (let i = 0, n = children.length; i < n; ++i) {
-        let widget = children.get(i);
+      for (let i = 0, n = this.childCount(); i < n; ++i) {
+        let widget = this.childAt(i);
         let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
@@ -454,8 +453,8 @@ class SplitPanel extends Panel {
     } else {
       minH = this._fixedSpace;
       maxH = visibleCount > 0 ? minH : maxH;
-      for (let i = 0, n = children.length; i < n; ++i) {
-        let widget = children.get(i);
+      for (let i = 0, n = this.childCount(); i < n; ++i) {
+        let widget = this.childAt(i);
         let sizer = this._sizers[i];
         if (sizer.size > 0) {
           sizer.sizeHint = sizer.size;
@@ -494,7 +493,7 @@ class SplitPanel extends Panel {
     if (this.parent) sendMessage(this.parent, Panel.MsgLayoutRequest);
 
     // Update the layout for the child widgets.
-    sendMessage(this, Widget.MsgUpdateRequest)
+    sendMessage(this, Widget.MsgUpdateRequest);
   }
 
   /**
@@ -502,8 +501,7 @@ class SplitPanel extends Panel {
    */
   private _layoutChildren(offsetWidth: number, offsetHeight: number): void {
     // Bail early if their are no children to arrange.
-    let children = this.children;
-    if (children.length === 0) {
+    if (this.childCount() === 0) {
       return;
     }
 
@@ -533,8 +531,8 @@ class SplitPanel extends Panel {
     let spacing = this.spacing;
     if (horizontal) {
       boxCalc(this._sizers, Math.max(0, width - this._fixedSpace));
-      for (let i = 0, n = children.length; i < n; ++i) {
-        let widget = children.get(i);
+      for (let i = 0, n = this.childCount(); i < n; ++i) {
+        let widget = this.childAt(i);
         if (widget.hidden) {
           continue;
         }
@@ -545,8 +543,8 @@ class SplitPanel extends Panel {
       }
     } else {
       boxCalc(this._sizers, Math.max(0, height - this._fixedSpace));
-      for (let i = 0, n = children.length; i < n; ++i) {
-        let widget = children.get(i);
+      for (let i = 0, n = this.childCount(); i < n; ++i) {
+        let widget = this.childAt(i);
         if (widget.hidden) {
           continue;
         }
@@ -590,7 +588,7 @@ class SplitPanel extends Panel {
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
     let delta: number;
-    let node = getHandle(this.children.get(index)).node;
+    let node = getHandle(this.childAt(index)).node;
     if (this.orientation === Orientation.Horizontal) {
       delta = event.clientX - node.getBoundingClientRect().left;
     } else {
@@ -651,7 +649,7 @@ class SplitPanel extends Panel {
    */
   private _moveHandle(index: number, pos: number): void {
     // Bail if the index is invalid.
-    let widget = this.children.get(index);
+    let widget = this.childAt(index);
     if (!widget) {
       return;
     }
@@ -883,9 +881,8 @@ function getRect(widget: Widget): IRect {
  * Find the index of the split handle which contains the given target.
  */
 function findHandleIndex(panel: SplitPanel, target: HTMLElement): number {
-  let children = panel.children;
-  for (let i = 0, n = children.length; i < n; ++i) {
-    let handle = getHandle(children.get(i));
+  for (let i = 0, n = panel.childCount(); i < n; ++i) {
+    let handle = getHandle(panel.childAt(i));
     if (handle.node.contains(target)) return i;
   }
   return -1;
