@@ -41,18 +41,25 @@ function main(): void {
 
   let sp3 = new SplitPanel();
   sp3.orientation = SplitPanel.Vertical;
-  sp3.children.assign([red1, green1, blue1]);
+  sp3.addChild(red1);
+  sp3.addChild(green1);
+  sp3.addChild(blue1);
 
   let sp2 = new SplitPanel();
   sp2.orientation = SplitPanel.Horizontal;
-  sp2.children.assign([sp3, yellow1, red2]);
+  sp2.addChild(sp3);
+  sp2.addChild(yellow1);
+  sp2.addChild(red2);
 
   let sp1 = new SplitPanel();
   sp1.orientation = SplitPanel.Vertical;
-  sp1.children.assign([yellow2, blue2, sp2, green2]);
+  sp1.addChild(yellow2);
+  sp1.addChild(blue2);
+  sp1.addChild(sp2);
+  sp1.addChild(green2);
   sp1.id = 'main';
 
-  Widget.attach(sp1, document.body);
+  sp1.attach(document.body);
 
   window.onresize = () => sp1.update();
 }
