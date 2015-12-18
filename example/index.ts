@@ -61,7 +61,7 @@ function main(): void {
 
   sp1.attach(document.body);
 
-  window.onresize = () => sp1.update();
+  window.onresize = () => { sp1.update(); };
 }
 
 
