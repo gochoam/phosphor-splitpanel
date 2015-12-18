@@ -135,6 +135,28 @@ class SplitPanel extends Panel {
   set spacing(value: number) {
     (this.layout as SplitLayout).spacing = value;
   }
+
+  /**
+   * Get the normalized sizes of the widgets in the panel.
+   *
+   * @returns The normalized sizes of the widgets in the panel.
+   */
+  sizes(): number[] {
+    return (this.layout as SplitLayout).sizes();
+  }
+
+  /**
+   * Set the relative sizes for the child widgets in the panel.
+   *
+   * @param sizes - The relative sizes for the children in the panel.
+   *   These values will be normalized to the available layout space.
+   *
+   * #### Notes
+   * Extra values are ignored, too few will yield an undefined layout.
+   */
+  setSizes(sizes: number[]): void {
+    (this.layout as SplitLayout).setSizes(sizes);
+  }
 }
 
 
@@ -212,6 +234,38 @@ class SplitLayout extends PanelLayout {
    */
   set spacing(value: number) {
     SplitLayoutPrivate.spacingProperty.set(this, value);
+  }
+
+  /**
+   * Get the normalized sizes of the widgets in the layout.
+   *
+   * @returns The normalized sizes of the widgets in the layout.
+   */
+  sizes(): number[] {
+    let sizers = SplitLayoutPrivate.sizersProperty.get(this);
+    return SplitLayoutPrivate.normalize(sizers.map(s => s.size));
+  }
+
+  /**
+   * Set the relative sizes for the child widgets in the layout.
+   *
+   * @param sizes - The relative sizes for the children in the layout.
+   *   These values will be normalized to the available layout space.
+   *
+   * #### Notes
+   * Extra values are ignored, too few will yield an undefined layout.
+   */
+  setSizes(sizes: number[]): void {
+    let normed = SplitLayoutPrivate.normalize(sizes);
+    let sizers = SplitLayoutPrivate.sizersProperty.get(this);
+    for (let i = 0, n = sizers.length; i < n; ++i) {
+      let hint = Math.max(0, normed[i] || 0);
+      let sizer = sizers[i];
+      sizer.sizeHint = hint;
+      sizer.size = hint;
+    }
+    SplitLayoutPrivate.pendingSizesProperty.set(this, true);
+    if (this.parent) this.parent.update();
   }
 
   /**
@@ -493,6 +547,15 @@ namespace SplitLayoutPrivate {
   });
 
   /**
+   * The property descriptor for the split layout pending sizes flag.
+   */
+  export
+  const pendingSizesProperty = new Property<SplitLayout, boolean>({
+    name: 'pendingSizes',
+    value: false,
+  });
+
+  /**
    * The property descriptor for a widget stretch factor.
    */
   export
@@ -529,6 +592,32 @@ namespace SplitLayoutPrivate {
   function averageSize(sizers: BoxSizer[]): number {
     if (sizers.length === 0) return 0;
     return sizers.reduce((v, s) => v + s.size, 0) / sizers.length;
+  }
+
+  /**
+   * Normalize an array of positive values.
+   */
+  export
+  function normalize(values: number[]): number[] {
+    let n = values.length;
+    if (n === 0) {
+      return [];
+    }
+    let sum = 0;
+    for (let i = 0; i < n; ++i) {
+      sum += values[i];
+    }
+    let result = new Array<number>(n);
+    if (sum === 0) {
+      for (let i = 0; i < n; ++i) {
+        result[i] = 1 / n;
+      }
+    } else {
+      for (let i = 0; i < n; ++i) {
+        result[i] = values[i] / sum;
+      }
+    }
+    return result;
   }
 
   /**
@@ -694,7 +783,7 @@ namespace SplitLayoutPrivate {
 
     // Lookup the layout data.
     let spacing = layout.spacing;
-    let orientation = layout.orientation;
+    let orient = layout.orientation;
     let box = boxSizingProperty.get(parent);
     let sizers = sizersProperty.get(layout);
     let fixedSpace = fixedSpaceProperty.get(layout);
@@ -705,19 +794,25 @@ namespace SplitLayoutPrivate {
     let width = offsetWidth - box.horizontalSum;
     let height = offsetHeight - box.verticalSum;
 
-    // // Update the sizer hints if there is a pending `setSizes`.
-    // if (this._pendingSizes) {
-    //   let space = horizontal ? width : height;
-    //   let adjusted = Math.max(0, space - this._fixedSpace);
-    //   for (let i = 0, n = this._sizers.length; i < n; ++i) {
-    //     this._sizers[i].sizeHint *= adjusted;
-    //   }
-    //   this._pendingSizes = false;
-    // }
+    // Compute the adjusted main layout space.
+    let mainSpace: number;
+    if (orient === Orientation.Horizontal) {
+      mainSpace = Math.max(0, width - fixedSpace);
+    } else {
+      mainSpace = Math.max(0, height - fixedSpace);
+    }
+
+    // Update the sizer hints if there is a pending set sizes.
+    if (pendingSizesProperty.get(layout)) {
+      for (let i = 0, n = sizers.length; i < n; ++i) {
+        sizers[i].sizeHint *= mainSpace;
+      }
+      pendingSizesProperty.set(layout, false);
+    }
 
     // Distribute the layout space and layout the children.
-    if (orientation === Orientation.Horizontal) {
-      boxCalc(sizers, Math.max(0, width - fixedSpace));
+    if (orient === Orientation.Horizontal) {
+      boxCalc(sizers, mainSpace);
       for (let i = 0, n = layout.childCount(); i < n; ++i) {
         let widget = layout.childAt(i);
         if (widget.isHidden) {
@@ -730,7 +825,7 @@ namespace SplitLayoutPrivate {
         left += size + spacing;
       }
     } else {
-      boxCalc(sizers, Math.max(0, height - fixedSpace));
+      boxCalc(sizers, mainSpace);
       for (let i = 0, n = layout.childCount(); i < n; ++i) {
         let widget = layout.childAt(i);
         if (widget.isHidden) {
