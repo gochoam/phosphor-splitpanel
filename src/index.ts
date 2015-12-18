@@ -15,7 +15,11 @@ import {
 } from 'phosphor-boxengine';
 
 import {
-  IBoxSizing, boxSizing, sizeLimits
+  IDisposable
+} from 'phosphor-disposable';
+
+import {
+  IBoxSizing, boxSizing, overrideCursor, sizeLimits
 } from 'phosphor-domutil';
 
 import {
@@ -111,6 +115,14 @@ class SplitPanel extends Panel {
   }
 
   /**
+   * Dispose of the resources held by the panel.
+   */
+  dispose(): void {
+    this._releaseMouse();
+    super.dispose();
+  }
+
+  /**
    * Get the layout orientation for the split panel.
    */
   get orientation(): Orientation {
@@ -159,6 +171,144 @@ class SplitPanel extends Panel {
   setSizes(sizes: number[]): void {
     (this.layout as SplitLayout).setSizes(sizes);
   }
+
+  /**
+   * Handle the DOM events for the split panel.
+   *
+   * @param event - The DOM event sent to the panel.
+   *
+   * #### Notes
+   * This method implements the DOM `EventListener` interface and is
+   * called in response to events on the panel's DOM node. It should
+   * not be called directly by user code.
+   */
+  handleEvent(event: Event): void {
+    switch (event.type) {
+    case 'mousedown':
+      this._evtMouseDown(event as MouseEvent);
+      break;
+    case 'mousemove':
+      this._evtMouseMove(event as MouseEvent);
+      break;
+    case 'mouseup':
+      this._evtMouseUp(event as MouseEvent);
+      break;
+    }
+  }
+
+  /**
+   * A message handler invoked on an `'after-attach'` message.
+   */
+  protected onAfterAttach(msg: Message): void {
+    this.node.addEventListener('mousedown', this);
+  }
+
+  /**
+   * A message handler invoked on a `'before-detach'` message.
+   */
+  protected onBeforeDetach(msg: Message): void {
+    this.node.removeEventListener('mousedown', this);
+  }
+
+  /**
+   * Handle the `'mousedown'` event for the split panel.
+   */
+  private _evtMouseDown(event: MouseEvent): void {
+    // Do nothing if the left mouse button is not pressed.
+    if (event.button !== 0) {
+      return;
+    }
+
+    // Check if the mouse press is on a split handle.
+    let layout = this.layout as SplitLayout;
+    let target = event.target as HTMLElement;
+    let { index, handle } = layout.findHandle(target);
+    if (index === -1) {
+      return;
+    }
+
+    // Stop the event when a split handle is pressed.
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Add the extra document listeners.
+    document.addEventListener('mouseup', this, true);
+    document.addEventListener('mousemove', this, true);
+
+    // Compute the offset delta for the handle press.
+    let delta: number;
+    let rect = handle.getBoundingClientRect();
+    if (layout.orientation === Orientation.Horizontal) {
+      delta = event.clientX - rect.left;
+    } else {
+      delta = event.clientY - rect.top;
+    }
+
+    // Override the cursor and store the press data.
+    let style = window.getComputedStyle(handle);
+    let override = overrideCursor(style.cursor);
+    this._pressData = { index: index, delta: delta, override: override };
+  }
+
+  /**
+   * Handle the `'mousemove'` event for the split panel.
+   */
+  private _evtMouseMove(event: MouseEvent): void {
+    // Stop the event when dragging a split handle.
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Compute the desired offset position for the handle.
+    let pos: number;
+    let data = this._pressData;
+    let layout = this.layout as SplitLayout;
+    let rect = this.node.getBoundingClientRect();
+    if (layout.orientation === Orientation.Horizontal) {
+      pos = event.clientX - data.delta - rect.left;
+    } else {
+      pos = event.clientY - data.delta - rect.top;
+    }
+
+    // Move the handle as close to the desired position as possible.
+    layout.moveHandle(data.index, pos);
+  }
+
+  /**
+   * Handle the `'mouseup'` event for the split panel.
+   */
+  private _evtMouseUp(event: MouseEvent): void {
+    // Do nothing if the left mouse button is not released.
+    if (event.button !== 0) {
+      return;
+    }
+
+    // Stop the event when releasing a handle.
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Finalize the mouse release.
+    this._releaseMouse();
+  }
+
+  /**
+   * Release the mouse grab for the split panel.
+   */
+  private _releaseMouse(): void {
+    // Bail early if no drag is in progress.
+    if (!this._pressData) {
+      return;
+    }
+
+    // Clear the override cursor.
+    this._pressData.override.dispose();
+    this._pressData = null;
+
+    // Remove the extra document listeners.
+    document.removeEventListener('mouseup', this, true);
+    document.removeEventListener('mousemove', this, true);
+  }
+
+  private _pressData: IPressData = null;
 }
 
 
@@ -267,6 +417,69 @@ class SplitLayout extends PanelLayout {
       sizer.size = hint;
     }
     SplitLayoutPrivate.pendingSizesProperty.set(this, true);
+    if (this.parent) this.parent.update();
+  }
+
+  /**
+   * Find the split handle node which contains the given target.
+   *
+   * @param target - The target node of interest.
+   *
+   * @returns An object which holds the `index` and the `handle` node
+   *   which contains the specified target. If no match is found, the
+   *   returned `index` will be `-1` and the `handle` will be `null`.
+   */
+  findHandle(target: HTMLElement): { index: number, handle: HTMLElement } {
+    let handleProp = SplitLayoutPrivate.splitHandleProperty;
+    for (let i = 0, n = this.childCount(); i < n; ++i) {
+      let handle = handleProp.get(this.childAt(i)).node;
+      if (handle.contains(target)) return { index: i, handle };
+    }
+    return { index: -1, handle: null };
+  }
+
+  /**
+   * Move a split handle to the specified offset position.
+   *
+   * @param index - The index of the handle of the interest.
+   *
+   * @param pos - The desired offset position of the handle.
+   */
+  moveHandle(index: number, pos: number): void {
+    // Bail if the index is invalid.
+    let widget = this.childAt(index);
+    if (!widget) {
+      return;
+    }
+
+    // Compute the delta movement for the handle.
+    let delta: number;
+    let handle = SplitLayoutPrivate.splitHandleProperty.get(widget);
+    if (this.orientation === Orientation.Horizontal) {
+      delta = pos - handle.node.offsetLeft;
+    } else {
+      delta = pos - handle.node.offsetTop;
+    }
+
+    // Bail if there is no handle movement.
+    if (delta === 0) {
+      return;
+    }
+
+    // Prevent item resizing unless needed.
+    let sizers = SplitLayoutPrivate.sizersProperty.get(this);
+    for (let sizer of sizers) {
+      if (sizer.size > 0) sizer.sizeHint = sizer.size;
+    }
+
+    // Adjust the sizers to reflect the movement.
+    if (delta > 0) {
+      SplitLayoutPrivate.growSizer(sizers, index, delta);
+    } else {
+      SplitLayoutPrivate.shrinkSizer(sizers, index, -delta);
+    }
+
+    // Update the layout of the child widgets.
     if (this.parent) this.parent.update();
   }
 
@@ -454,6 +667,27 @@ namespace SplitLayout {
   function setStretch(widget: Widget, value: number): void {
     SplitLayoutPrivate.stretchProperty.set(widget, value);
   }
+}
+
+
+/**
+ * An object which holds mouse press data.
+ */
+interface IPressData {
+  /**
+   * The index of the pressed handle.
+   */
+  index: number;
+
+  /**
+   * The offset of the press in handle coordinates.
+   */
+  delta: number;
+
+  /**
+   * The disposable which will clear the override cursor.
+   */
+  override: IDisposable;
 }
 
 
@@ -838,6 +1072,90 @@ namespace SplitLayoutPrivate {
         setGeometry(widget, left, top, width, size);
         handle.setGeometry(left, top + size, width, spacing);
         top += size + spacing;
+      }
+    }
+  }
+
+  /**
+   * Grow a sizer to the right by a positive delta and adjust neighbors.
+   */
+  export
+  function growSizer(sizers: BoxSizer[], index: number, delta: number): void {
+    let growLimit = 0;
+    for (let i = 0; i <= index; ++i) {
+      let sizer = sizers[i];
+      growLimit += sizer.maxSize - sizer.size;
+    }
+    let shrinkLimit = 0;
+    for (let i = index + 1, n = sizers.length; i < n; ++i) {
+      let sizer = sizers[i];
+      shrinkLimit += sizer.size - sizer.minSize;
+    }
+    delta = Math.min(delta, growLimit, shrinkLimit);
+    let grow = delta;
+    for (let i = index; i >= 0 && grow > 0; --i) {
+      let sizer = sizers[i];
+      let limit = sizer.maxSize - sizer.size;
+      if (limit >= grow) {
+        sizer.sizeHint = sizer.size + grow;
+        grow = 0;
+      } else {
+        sizer.sizeHint = sizer.size + limit;
+        grow -= limit;
+      }
+    }
+    let shrink = delta;
+    for (let i = index + 1, n = sizers.length; i < n && shrink > 0; ++i) {
+      let sizer = sizers[i];
+      let limit = sizer.size - sizer.minSize;
+      if (limit >= shrink) {
+        sizer.sizeHint = sizer.size - shrink;
+        shrink = 0;
+      } else {
+        sizer.sizeHint = sizer.size - limit;
+        shrink -= limit;
+      }
+    }
+  }
+
+  /**
+   * Shrink a sizer to the left by a positive delta and adjust neighbors.
+   */
+  export
+  function shrinkSizer(sizers: BoxSizer[], index: number, delta: number): void {
+    let growLimit = 0;
+    for (let i = index + 1, n = sizers.length; i < n; ++i) {
+      let sizer = sizers[i];
+      growLimit += sizer.maxSize - sizer.size;
+    }
+    let shrinkLimit = 0;
+    for (let i = 0; i <= index; ++i) {
+      let sizer = sizers[i];
+      shrinkLimit += sizer.size - sizer.minSize;
+    }
+    delta = Math.min(delta, growLimit, shrinkLimit);
+    let grow = delta;
+    for (let i = index + 1, n = sizers.length; i < n && grow > 0; ++i) {
+      let sizer = sizers[i];
+      let limit = sizer.maxSize - sizer.size;
+      if (limit >= grow) {
+        sizer.sizeHint = sizer.size + grow;
+        grow = 0;
+      } else {
+        sizer.sizeHint = sizer.size + limit;
+        grow -= limit;
+      }
+    }
+    let shrink = delta;
+    for (let i = index; i >= 0 && shrink > 0; --i) {
+      let sizer = sizers[i];
+      let limit = sizer.size - sizer.minSize;
+      if (limit >= shrink) {
+        sizer.sizeHint = sizer.size - shrink;
+        shrink = 0;
+      } else {
+        sizer.sizeHint = sizer.size - limit;
+        shrink -= limit;
       }
     }
   }
