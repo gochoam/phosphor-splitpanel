@@ -473,22 +473,33 @@ class SplitLayout extends PanelLayout {
    *
    * @param index - The index of the handle of the interest.
    *
-   * @param pos - The desired offset position of the handle.
+   * @param position - The desired offset position of the handle. This
+   *   is the absolute position relative to the origin of the parent.
+   *
+   * #### Notes
+   * This will move the specified handle as close as possible to the
+   * desired position, adjusting sibling children if required. It will
+   * not violate the size constraints of any child.
    */
-  moveHandle(index: number, pos: number): void {
+  moveHandle(index: number, position: number): void {
     // Bail if the index is invalid.
     let widget = this.childAt(index);
     if (!widget) {
       return;
     }
 
+    // Bail if the handle is hidden.
+    let handle = SplitLayoutPrivate.splitHandleProperty.get(widget);
+    if (handle.isHidden) {
+      return;
+    }
+
     // Compute the delta movement for the handle.
     let delta: number;
-    let handle = SplitLayoutPrivate.splitHandleProperty.get(widget);
     if (this.orientation === Orientation.Horizontal) {
-      delta = pos - handle.node.offsetLeft;
+      delta = position - handle.node.offsetLeft;
     } else {
-      delta = pos - handle.node.offsetTop;
+      delta = position - handle.node.offsetTop;
     }
 
     // Bail if there is no handle movement.
@@ -742,6 +753,13 @@ class SplitHandle extends NodeWrapper {
   constructor() {
     super();
     this.addClass(SPLIT_HANDLE_CLASS);
+  }
+
+  /**
+   * Test whether the handle is hidden.
+   */
+  get isHidden(): boolean {
+    return this.hasClass(HIDDEN_CLASS);
   }
 
   /**
@@ -1076,9 +1094,11 @@ namespace SplitLayoutPrivate {
       pendingSizesProperty.set(layout, false);
     }
 
-    // Distribute the layout space and layout the children.
+    // Distribute the available layout space.
+    boxCalc(sizers, mainSpace);
+
+    // Layout the children.
     if (orient === Orientation.Horizontal) {
-      boxCalc(sizers, mainSpace);
       for (let i = 0, n = layout.childCount(); i < n; ++i) {
         let widget = layout.childAt(i);
         if (widget.isHidden) {
@@ -1091,7 +1111,6 @@ namespace SplitLayoutPrivate {
         left += size + spacing;
       }
     } else {
-      boxCalc(sizers, mainSpace);
       for (let i = 0, n = layout.childCount(); i < n; ++i) {
         let widget = layout.childAt(i);
         if (widget.isHidden) {
