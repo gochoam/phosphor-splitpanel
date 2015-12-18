@@ -193,6 +193,16 @@ class SplitPanel extends Panel {
     case 'mouseup':
       this._evtMouseUp(event as MouseEvent);
       break;
+    case 'keydown':
+      this._evtKeyDown(event as KeyboardEvent);
+      break;
+    case 'keyup':
+    case 'keypress':
+    case 'contextmenu':
+      // Stop all input events during drag.
+      event.preventDefault();
+      event.stopPropagation();
+      break;
     }
   }
 
@@ -208,6 +218,18 @@ class SplitPanel extends Panel {
    */
   protected onBeforeDetach(msg: Message): void {
     this.node.removeEventListener('mousedown', this);
+  }
+
+  /**
+   * Handle the `'keydown'` event for the split panel.
+   */
+  private _evtKeyDown(event: KeyboardEvent): void {
+    // Stop all input events during drag.
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Release the mouse if `Escape` is pressed.
+    if (event.keyCode === 27) this._releaseMouse();
   }
 
   /**
@@ -234,6 +256,10 @@ class SplitPanel extends Panel {
     // Add the extra document listeners.
     document.addEventListener('mouseup', this, true);
     document.addEventListener('mousemove', this, true);
+    document.addEventListener('keydown', this, true);
+    document.addEventListener('keyup', this, true);
+    document.addEventListener('keypress', this, true);
+    document.addEventListener('contextmenu', this, true);
 
     // Compute the offset delta for the handle press.
     let delta: number;
@@ -306,6 +332,10 @@ class SplitPanel extends Panel {
     // Remove the extra document listeners.
     document.removeEventListener('mouseup', this, true);
     document.removeEventListener('mousemove', this, true);
+    document.removeEventListener('keydown', this, true);
+    document.removeEventListener('keyup', this, true);
+    document.removeEventListener('keypress', this, true);
+    document.removeEventListener('contextmenu', this, true);
   }
 
   private _pressData: IPressData = null;
