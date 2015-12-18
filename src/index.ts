@@ -460,9 +460,9 @@ class SplitLayout extends PanelLayout {
    *   returned `index` will be `-1` and the `handle` will be `null`.
    */
   findHandle(target: HTMLElement): { index: number, handle: HTMLElement } {
-    let handleProp = SplitLayoutPrivate.splitHandleProperty;
+    let handleProperty = SplitLayoutPrivate.splitHandleProperty;
     for (let i = 0, n = this.childCount(); i < n; ++i) {
-      let handle = handleProp.get(this.childAt(i)).node;
+      let handle = handleProperty.get(this.childAt(i)).node;
       if (handle.contains(target)) return { index: i, handle };
     }
     return { index: -1, handle: null };
