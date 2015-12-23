@@ -6,58 +6,54 @@
 | The full license is in the file LICENSE, distributed with this software.
 |----------------------------------------------------------------------------*/
 .p-SplitPanel {
-  position: relative;
   z-index: 0;
 }
 
 
-.p-SplitPanel > .p-Widget {
-  position: absolute;
+.p-SplitPanel-child {
   z-index: 0;
 }
 
 
-.p-SplitHandle {
-  box-sizing: border-box;
-  position: absolute;
+.p-SplitPanel-handle {
   z-index: 1;
 }
 
 
-.p-SplitHandle.p-mod-hidden {
+.p-SplitPanel-handle.p-mod-hidden {
   display: none;
 }
 
 
-.p-SplitHandle.p-mod-horizontal {
+.p-SplitPanel-handle.p-mod-horizontal {
   cursor: ew-resize;
 }
 
 
-.p-SplitHandle.p-mod-vertical {
+.p-SplitPanel-handle.p-mod-vertical {
   cursor: ns-resize;
 }
 
 
-.p-SplitHandle-overlay {
-  box-sizing: border-box;
+.p-SplitPanel-handle:after {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  content: '';
 }
 
 
-.p-SplitHandle.p-mod-horizontal > .p-SplitHandle-overlay {
-  min-width: 7px;
+.p-SplitPanel-handle.p-mod-horizontal:after {
   left: 50%;
+  min-width: 7px;
   transform: translateX(-50%);
 }
 
 
-.p-SplitHandle.p-mod-vertical > .p-SplitHandle-overlay {
-  min-height: 7px;
+.p-SplitPanel-handle.p-mod-vertical:after {
   top: 50%;
+  min-height: 7px;
   transform: translateY(-50%);
 }

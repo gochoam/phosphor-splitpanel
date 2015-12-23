@@ -51,12 +51,7 @@ const SPLIT_PANEL_CLASS = 'p-SplitPanel';
 /**
  * The class name added to SplitHandle instances.
  */
-const SPLIT_HANDLE_CLASS = 'p-SplitHandle';
-
-/**
- * The class name added to a split handle overlay.
- */
-const OVERLAY_CLASS = 'p-SplitHandle-overlay';
+const SPLIT_HANDLE_CLASS = 'p-SplitPanel-handle';
 
 /**
  * The class name added to horizontal split layout parents and handles.
@@ -218,6 +213,10 @@ class SplitPanel extends Panel {
    */
   protected onBeforeDetach(msg: Message): void {
     this.node.removeEventListener('mousedown', this);
+  }
+
+  protected onChildAdded(msg: ChildMessage): void {
+    msg.child.addClass('p-SplitPanel-child');
   }
 
   /**
@@ -552,6 +551,7 @@ class SplitLayout extends PanelLayout {
     let average = SplitLayoutPrivate.averageSize(sizers);
     let sizer = SplitLayoutPrivate.createSizer(average);
     arrays.insert(sizers, index, sizer);
+    SplitLayoutPrivate.prepareGeometry(child);
     this.parent.node.appendChild(child.node);
     this.parent.node.appendChild(handle.node);
     if (this.parent.isAttached) sendMessage(child, Widget.MsgAfterAttach);
@@ -737,22 +737,12 @@ interface IPressData {
  */
 class SplitHandle extends NodeWrapper {
   /**
-   * Create the DOM node for a split handle.
-   */
-  static createNode(): HTMLElement {
-    let node = document.createElement('div');
-    let overlay = document.createElement('div');
-    overlay.className = OVERLAY_CLASS;
-    node.appendChild(overlay);
-    return node;
-  }
-
-  /**
    * Construct a new split handle.
    */
   constructor() {
     super();
     this.addClass(SPLIT_HANDLE_CLASS);
+    this.node.style.position = 'absolute';
   }
 
   /**
@@ -913,6 +903,14 @@ namespace SplitLayoutPrivate {
   export
   function initialize(layout: SplitLayout): void {
     updateParentOrientation(layout);
+  }
+
+  /**
+   * Prepare the layout geometry for the given child widget.
+   */
+  export
+  function prepareGeometry(widget: Widget): void {
+    widget.node.style.position = 'absolute';
   }
 
   /**
