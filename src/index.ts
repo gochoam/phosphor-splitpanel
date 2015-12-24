@@ -49,6 +49,11 @@ import './index.css';
 const SPLIT_PANEL_CLASS = 'p-SplitPanel';
 
 /**
+ * The class name added to a SplitPanel child.
+ */
+const CHILD_CLASS = 'p-SplitPanel-child';
+
+/**
  * The class name added to SplitHandle instances.
  */
 const SPLIT_HANDLE_CLASS = 'p-SplitPanel-handle';
@@ -215,8 +220,18 @@ class SplitPanel extends Panel {
     this.node.removeEventListener('mousedown', this);
   }
 
+  /**
+   * A message handler invoked on a `'child-added'` message.
+   */
   protected onChildAdded(msg: ChildMessage): void {
-    msg.child.addClass('p-SplitPanel-child');
+    msg.child.addClass(CHILD_CLASS);
+  }
+
+  /**
+   * A message handler invoked on a `'child-removed'` message.
+   */
+  protected onChildRemoved(msg: ChildMessage): void {
+    msg.child.removeClass(CHILD_CLASS);
   }
 
   /**
@@ -924,6 +939,7 @@ namespace SplitLayoutPrivate {
     rect.left = NaN;
     rect.width = NaN;
     rect.height = NaN;
+    style.position = '';
     style.top = '';
     style.left = '';
     style.width = '';
