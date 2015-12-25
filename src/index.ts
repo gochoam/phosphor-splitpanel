@@ -49,22 +49,22 @@ import './index.css';
 const SPLIT_PANEL_CLASS = 'p-SplitPanel';
 
 /**
- * The class name added to a SplitPanel child.
+ * The class name added to split panel children.
  */
 const CHILD_CLASS = 'p-SplitPanel-child';
 
 /**
- * The class name added to SplitHandle instances.
+ * The class name added to split panel handles.
  */
-const SPLIT_HANDLE_CLASS = 'p-SplitPanel-handle';
+const HANDLE_CLASS = 'p-SplitPanel-handle';
 
 /**
- * The class name added to horizontal split layout parents and handles.
+ * The class name added to horizontal split panels and handles.
  */
 const HORIZONTAL_CLASS = 'p-mod-horizontal';
 
 /**
- * The class name added to vertical split layout parents and handles.
+ * The class name added to vertical split panels and handles.
  */
 const VERTICAL_CLASS = 'p-mod-vertical';
 
@@ -75,7 +75,7 @@ const HIDDEN_CLASS = 'p-mod-hidden';
 
 
 /**
- * The layout orientation of a split layout.
+ * The orientation of a split layout.
  */
 export
 enum Orientation {
@@ -92,6 +92,77 @@ enum Orientation {
 
 
 /**
+ * An object which is used as a split handle in a split layout.
+ */
+export
+interface ISplitHandle extends NodeWrapper {
+  /**
+   * Whether the handle is hidden.
+   *
+   * #### Notes
+   * This is a read-write property.
+   */
+  hidden: boolean;
+
+  /**
+   * The orientation of the handle.
+   *
+   * #### Notes
+   * This is a read-write property.
+   */
+  orientation: Orientation;
+}
+
+
+/**
+ * A concrete implementation of ISplitHandle.
+ *
+ * #### Notes
+ * This is the default split handle type for a [[SplitPanel]].
+ */
+export
+class SplitHandle extends NodeWrapper implements ISplitHandle {
+  /**
+   * Construct a new split handle.
+   */
+  constructor() {
+    super();
+    this.addClass(HORIZONTAL_CLASS);
+  }
+
+  /**
+   * Get whether the split handle is hidden.
+   */
+  get hidden(): boolean {
+    return this.hasClass(HIDDEN_CLASS);
+  }
+
+  /**
+   * Set whether the split handle is hidden.
+   */
+  set hidden(value: boolean) {
+    this.toggleClass(HIDDEN_CLASS, value);
+  }
+
+  /**
+   * Get the orientation of the split handle.
+   */
+  get orientation(): Orientation {
+    let horizontal = this.hasClass(HORIZONTAL_CLASS);
+    return horizontal ? Orientation.Horizontal : Orientation.Vertical;
+  }
+
+  /**
+   * Set the orientation of the split handle.
+   */
+  set orientation(value: Orientation) {
+    this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
+    this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
+  }
+}
+
+
+/**
  * A panel which arranges its children into resizable sections.
  *
  * #### Notes
@@ -103,7 +174,19 @@ class SplitPanel extends Panel {
    * Create a split layout for a split panel.
    */
   static createLayout(): SplitLayout {
-    return new SplitLayout();
+    return new SplitLayout(this);
+  }
+
+  /**
+   * Create a split handle for use in a split panel.
+   *
+   * #### Notes
+   * This may be reimplemented to create custom split handles.
+   */
+  static createHandle(): ISplitHandle {
+    let handle = new SplitHandle();
+    handle.addClass(HANDLE_CLASS);
+    return handle;
   }
 
   /**
@@ -148,6 +231,17 @@ class SplitPanel extends Panel {
    */
   set spacing(value: number) {
     (this.layout as SplitLayout).spacing = value;
+  }
+
+  /**
+   * Get the split handle for the widget at the given index.
+   *
+   * @param index - The index of the widget of interest.
+   *
+   * @returns The split handle for the widget, or `undefined`.
+   */
+  handleAt(index: number): ISplitHandle {
+    return (this.layout as SplitLayout).handleAt(index);
   }
 
   /**
@@ -255,10 +349,8 @@ class SplitPanel extends Panel {
       return;
     }
 
-    // Check if the mouse press is on a split handle.
-    let layout = this.layout as SplitLayout;
-    let target = event.target as HTMLElement;
-    let { index, handle } = layout.findHandle(target);
+    // Find the handle which contains the target, if any.
+    let { index, handle } = this._findHandle(event.target as HTMLElement);
     if (index === -1) {
       return;
     }
@@ -277,17 +369,17 @@ class SplitPanel extends Panel {
 
     // Compute the offset delta for the handle press.
     let delta: number;
-    let rect = handle.getBoundingClientRect();
-    if (layout.orientation === Orientation.Horizontal) {
+    let rect = handle.node.getBoundingClientRect();
+    if (this.orientation === Orientation.Horizontal) {
       delta = event.clientX - rect.left;
     } else {
       delta = event.clientY - rect.top;
     }
 
     // Override the cursor and store the press data.
-    let style = window.getComputedStyle(handle);
+    let style = window.getComputedStyle(handle.node);
     let override = overrideCursor(style.cursor);
-    this._pressData = { index: index, delta: delta, override: override };
+    this._pressData = { index, delta, override };
   }
 
   /**
@@ -328,6 +420,20 @@ class SplitPanel extends Panel {
 
     // Finalize the mouse release.
     this._releaseMouse();
+  }
+
+  /**
+   * Find the split handle which contains the given target.
+   */
+  private _findHandle(target: HTMLElement): { index: number, handle: ISplitHandle } {
+    let layout = this.layout as SplitLayout;
+    for (let i = 0, n = layout.childCount(); i < n; ++i) {
+      let handle = layout.handleAt(i);
+      if (handle.contains(target)) {
+        return { index: i, handle };
+      }
+    }
+    return { index: -1, handle: null };
   }
 
   /**
@@ -400,10 +506,32 @@ namespace SplitPanel {
 
 
 /**
+ * A factory object which creates handles for a split layout.
+ */
+export
+interface IHandleFactory {
+  /**
+   * Create a new split handle for use with a split layout.
+   */
+  createHandle(): ISplitHandle;
+}
+
+
+/**
  * A layout which arranges its children into resizable sections.
  */
 export
 class SplitLayout extends PanelLayout {
+  /**
+   * Construct a new split layout.
+   *
+   * @param factory - The factory for creating split handles.
+   */
+  constructor(factory: IHandleFactory) {
+    super();
+    this._factory = factory;
+  }
+
   /**
    * Get the layout orientation for the split layout.
    */
@@ -438,8 +566,7 @@ class SplitLayout extends PanelLayout {
    * @returns The normalized sizes of the widgets in the layout.
    */
   sizes(): number[] {
-    let sizers = SplitLayoutPrivate.sizersProperty.get(this);
-    return SplitLayoutPrivate.normalize(sizers.map(s => s.size));
+    return SplitLayoutPrivate.normalize(this._sizers.map(s => s.size));
   }
 
   /**
@@ -453,33 +580,25 @@ class SplitLayout extends PanelLayout {
    */
   setSizes(sizes: number[]): void {
     let normed = SplitLayoutPrivate.normalize(sizes);
-    let sizers = SplitLayoutPrivate.sizersProperty.get(this);
-    for (let i = 0, n = sizers.length; i < n; ++i) {
+    for (let i = 0, n = this._sizers.length; i < n; ++i) {
       let hint = Math.max(0, normed[i] || 0);
-      let sizer = sizers[i];
+      let sizer = this._sizers[i];
       sizer.sizeHint = hint;
       sizer.size = hint;
     }
-    SplitLayoutPrivate.pendingSizesProperty.set(this, true);
+    this._pendingSizes = true;
     if (this.parent) this.parent.update();
   }
 
   /**
-   * Find the split handle node which contains the given target.
+   * Get the handle for the widget at the given index.
    *
-   * @param target - The target node of interest.
+   * @param index - The index of the handle of interest.
    *
-   * @returns An object which holds the `index` and the `handle` node
-   *   which contains the specified target. If no match is found, the
-   *   returned `index` will be `-1` and the `handle` will be `null`.
+   * @returns The handle for the given index, or `undefined`.
    */
-  findHandle(target: HTMLElement): { index: number, handle: HTMLElement } {
-    let handleProperty = SplitLayoutPrivate.splitHandleProperty;
-    for (let i = 0, n = this.childCount(); i < n; ++i) {
-      let handle = handleProperty.get(this.childAt(i)).node;
-      if (handle.contains(target)) return { index: i, handle };
-    }
-    return { index: -1, handle: null };
+  handleAt(index: number): HTMLElement {
+    return SplitLayoutPrivate.handlesProperty.get(this)[index];
   }
 
   /**
@@ -496,24 +615,18 @@ class SplitLayout extends PanelLayout {
    * not violate the size constraints of any child.
    */
   moveHandle(index: number, position: number): void {
-    // Bail if the index is invalid.
-    let widget = this.childAt(index);
-    if (!widget) {
-      return;
-    }
-
-    // Bail if the handle is hidden.
-    let handle = SplitLayoutPrivate.splitHandleProperty.get(widget);
-    if (handle.isHidden) {
+    // Bail if the index is invalid or the handle is hidden.
+    let handle = this.handleAt(index);
+    if (!handle || handle.hidden) {
       return;
     }
 
     // Compute the delta movement for the handle.
     let delta: number;
     if (this.orientation === Orientation.Horizontal) {
-      delta = position - handle.node.offsetLeft;
+      delta = position - handle.offsetLeft;
     } else {
-      delta = position - handle.node.offsetTop;
+      delta = position - handle.offsetTop;
     }
 
     // Bail if there is no handle movement.
@@ -561,14 +674,16 @@ class SplitLayout extends PanelLayout {
    * This is a reimplementation of the superclass method.
    */
   protected attachChild(index: number, child: Widget): void {
-    let handle = SplitLayoutPrivate.splitHandleProperty.get(child);
     let sizers = SplitLayoutPrivate.sizersProperty.get(this);
+    let handles = SplitLayoutPrivate.handlesProperty.get(this);
     let average = SplitLayoutPrivate.averageSize(sizers);
     let sizer = SplitLayoutPrivate.createSizer(average);
+    let handle = SplitLayoutPrivate.createHandle(this);
     arrays.insert(sizers, index, sizer);
+    arrays.insert(handles, index, handle);
     SplitLayoutPrivate.prepareGeometry(child);
     this.parent.node.appendChild(child.node);
-    this.parent.node.appendChild(handle.node);
+    this.parent.node.appendChild(handle);
     if (this.parent.isAttached) sendMessage(child, Widget.MsgAfterAttach);
     this.parent.fit();
   }
@@ -587,7 +702,9 @@ class SplitLayout extends PanelLayout {
    */
   protected moveChild(fromIndex: number, toIndex: number, child: Widget): void {
     let sizers = SplitLayoutPrivate.sizersProperty.get(this);
+    let handles = SplitLayoutPrivate.handlesProperty.get(this);
     arrays.move(sizers, fromIndex, toIndex);
+    arrays.move(handles, fromIndex, toIndex);
     this.parent.fit();  // fit instead of update to show/hide handles
   }
 
@@ -602,12 +719,13 @@ class SplitLayout extends PanelLayout {
    * This is a reimplementation of the superclass method.
    */
   protected detachChild(index: number, child: Widget): void {
-    let handle = SplitLayoutPrivate.splitHandleProperty.get(child);
     let sizers = SplitLayoutPrivate.sizersProperty.get(this);
-    arrays.removeAt(sizers, index);
+    let handles = SplitLayoutPrivate.handlesProperty.get(this);
+    let sizer = arrays.removeAt(sizers, index);
+    let handle = arrays.removeAt(handles, index);
     if (this.parent.isAttached) sendMessage(child, Widget.MsgBeforeDetach);
     this.parent.node.removeChild(child.node);
-    this.parent.node.removeChild(handle.node);
+    this.parent.node.removeChild(handle);
     SplitLayoutPrivate.resetGeometry(child);
     this.parent.fit();
   }
@@ -680,6 +798,11 @@ class SplitLayout extends PanelLayout {
       SplitLayoutPrivate.fit(this);
     }
   }
+
+  private _pendingSizes = false;
+  private _factory: IHandleFactory;
+  private _sizers: BoxSizer[] = [];
+  private _handles: SplitHandle[] = [];
 }
 
 
@@ -748,54 +871,6 @@ interface IPressData {
 
 
 /**
- * A class which manages a handle node for a split layout.
- */
-class SplitHandle extends NodeWrapper {
-  /**
-   * Construct a new split handle.
-   */
-  constructor() {
-    super();
-    this.addClass(SPLIT_HANDLE_CLASS);
-    this.node.style.position = 'absolute';
-  }
-
-  /**
-   * Test whether the handle is hidden.
-   */
-  get isHidden(): boolean {
-    return this.hasClass(HIDDEN_CLASS);
-  }
-
-  /**
-   * Set whether the handle is hidden.
-   */
-  setHidden(value: boolean) {
-    this.toggleClass(HIDDEN_CLASS, value);
-  }
-
-  /**
-   * Set the orientation of the handle.
-   */
-  setOrientation(value: Orientation) {
-    this.toggleClass(HORIZONTAL_CLASS, value === Orientation.Horizontal);
-    this.toggleClass(VERTICAL_CLASS, value === Orientation.Vertical);
-  }
-
-  /**
-   * Set the geometry for the handle.
-   */
-  setGeometry(left: number, top: number, width: number, height: number): void {
-    let style = this.node.style;
-    style.top = top + 'px';
-    style.left = left + 'px';
-    style.width = width + 'px';
-    style.height = height + 'px';
-  }
-}
-
-
-/**
  * The namespace for the `SplitLayout` class private data.
  */
 namespace SplitLayoutPrivate {
@@ -827,24 +902,6 @@ namespace SplitLayoutPrivate {
   });
 
   /**
-   * The property descriptor for the split layout sizers.
-   */
-  export
-  const sizersProperty = new Property<SplitLayout, BoxSizer[]>({
-    name: 'sizers',
-    create: () => [],
-  });
-
-  /**
-   * The property descriptor for the split layout pending sizes flag.
-   */
-  export
-  const pendingSizesProperty = new Property<SplitLayout, boolean>({
-    name: 'pendingSizes',
-    value: false,
-  });
-
-  /**
    * The property descriptor for a widget stretch factor.
    */
   export
@@ -856,15 +913,6 @@ namespace SplitLayoutPrivate {
   });
 
   /**
-   * The property descriptor for a widget split handle.
-   */
-  export
-  const splitHandleProperty = new Property<Widget, SplitHandle>({
-    name: 'splitHandle',
-    create: owner => new SplitHandle(),
-  });
-
-  /**
    * Create a new box sizer with the given size hint.
    */
   export
@@ -872,6 +920,16 @@ namespace SplitLayoutPrivate {
     let sizer = new BoxSizer();
     sizer.sizeHint = size | 0;
     return sizer;
+  }
+
+  /**
+   * Create a new split handle using the given handle
+   */
+  export
+  function createHandle(factory: IHandleFactory): ISplitHandle {
+    let handle = factory.createHandle();
+    handle.node.style.position = 'absolute';
+    return handle;
   }
 
   /**
@@ -959,13 +1017,15 @@ namespace SplitLayoutPrivate {
 
     // Update the handles and track the visible widget count.
     let visibleCount = 0;
-    let orientation = layout.orientation;
-    let lastVisibleHandle: SplitHandle = null;
+    let orient = layout.orientation;
+    let handles = handlesProperty.get(layout);
+    let lastVisibleHandle: HTMLElement = null;
     for (let i = 0, n = layout.childCount(); i < n; ++i) {
       let widget = layout.childAt(i);
-      let handle = splitHandleProperty.get(widget);
-      handle.setHidden(widget.isHidden);
-      handle.setOrientation(orientation);
+      let handle = handles[i];
+      toggleClass(handle, HIDDEN_CLASS, widget.isHidden);
+      toggleClass(handle, HORIZONTAL_CLASS, orient === Orientation.Horizontal);
+      toggleClass(handle, VERTICAL_CLASS, orient === Orientation.Vertical);
       if (!widget.isHidden) {
         lastVisibleHandle = handle;
         visibleCount++;
@@ -973,7 +1033,7 @@ namespace SplitLayoutPrivate {
     }
 
     // Hide the last visible handle and update the fixed spacing.
-    if (lastVisibleHandle) lastVisibleHandle.setHidden(true);
+    if (lastVisibleHandle) toggleClass(lastVisibleHandle, HIDDEN_CLASS, true);
     let fixedSpace = layout.spacing * Math.max(0, visibleCount - 1);
     fixedSpaceProperty.set(layout, fixedSpace);
 
@@ -983,7 +1043,7 @@ namespace SplitLayoutPrivate {
     let maxW = Infinity;
     let maxH = Infinity;
     let sizers = sizersProperty.get(layout);
-    if (orientation === Orientation.Horizontal) {
+    if (orient === Orientation.Horizontal) {
       minW = fixedSpace;
       maxW = visibleCount > 0 ? minW : maxW;
       for (let i = 0, n = layout.childCount(); i < n; ++i) {
@@ -1084,6 +1144,7 @@ namespace SplitLayoutPrivate {
     let orient = layout.orientation;
     let box = boxSizingProperty.get(parent);
     let sizers = sizersProperty.get(layout);
+    let handles = handlesProperty.get(layout);
     let fixedSpace = fixedSpaceProperty.get(layout);
 
     // Compute the actual layout bounds adjusted for border and padding.
@@ -1119,9 +1180,9 @@ namespace SplitLayoutPrivate {
           continue;
         }
         let size = sizers[i].size;
-        let handle = splitHandleProperty.get(widget);
+        let handle = handles[i];
         setGeometry(widget, left, top, size, height);
-        handle.setGeometry(left + size, top, spacing, height);
+        setHandleGeometry(handle, left + size, top, spacing, height);
         left += size + spacing;
       }
     } else {
@@ -1131,9 +1192,9 @@ namespace SplitLayoutPrivate {
           continue;
         }
         let size = sizers[i].size;
-        let handle = splitHandleProperty.get(widget);
+        let handle = handles[i];
         setGeometry(widget, left, top, width, size);
-        handle.setGeometry(left, top + size, width, spacing);
+        setHandleGeometry(handle, left, top + size, width, spacing);
         top += size + spacing;
       }
     }
@@ -1337,5 +1398,16 @@ namespace SplitLayoutPrivate {
     if (resized) {
       sendMessage(widget, new ResizeMessage(width, height));
     }
+  }
+
+  /**
+   *
+   */
+  function setHandleGeometry(handle: HTMLElement, left: number, top: number, width: number, height: number): void {
+    let style = handle.style;
+    style.top = top + 'px';
+    style.left = left + 'px';
+    style.width = width + 'px';
+    style.height = height + 'px';
   }
 }
