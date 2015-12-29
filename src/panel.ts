@@ -367,7 +367,7 @@ class SplitPanel extends Panel {
     document.removeEventListener('contextmenu', this, true);
   }
 
-  private _pressData: IPressData = null;
+  private _pressData: SplitPanelPrivate.IPressData = null;
 }
 
 
@@ -415,46 +415,46 @@ namespace SplitPanel {
 
 
 /**
- * An object which holds mouse press data.
- */
-interface IPressData {
-  /**
-   * The index of the pressed handle.
-   */
-  index: number;
-
-  /**
-   * The offset of the press in handle coordinates.
-   */
-  delta: number;
-
-  /**
-   * The disposable which will clear the override cursor.
-   */
-  override: IDisposable;
-}
-
-
-/**
- * An object which holds a split handle and index.
- */
-interface IHandlePair {
-  /**
-   * The index of the handle.
-   */
-  index: number;
-
-  /**
-   * The split handle at the index.
-   */
-  handle: ISplitHandle;
-}
-
-
-/**
  * The namespace for the `SplitPanel` class private data.
  */
 namespace SplitPanelPrivate {
+  /**
+   * An object which holds mouse press data.
+   */
+  export
+  interface IPressData {
+    /**
+     * The index of the pressed handle.
+     */
+    index: number;
+
+    /**
+     * The offset of the press in handle coordinates.
+     */
+    delta: number;
+
+    /**
+     * The disposable which will clear the override cursor.
+     */
+    override: IDisposable;
+  }
+
+  /**
+   * An object which holds a split handle and index.
+   */
+  export
+  interface IHandlePair {
+    /**
+     * The index of the handle.
+     */
+    index: number;
+
+    /**
+     * The split handle at the index.
+     */
+    handle: ISplitHandle;
+  }
+
   /**
    * Find the split handle which contains the given target element.
    */
