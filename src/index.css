@@ -25,16 +25,6 @@
 }
 
 
-.p-SplitPanel-handle.p-mod-horizontal {
-  cursor: ew-resize;
-}
-
-
-.p-SplitPanel-handle.p-mod-vertical {
-  cursor: ns-resize;
-}
-
-
 .p-SplitPanel-handle:after {
   position: absolute;
   top: 0;
@@ -45,14 +35,24 @@
 }
 
 
-.p-SplitPanel-handle.p-mod-horizontal:after {
+.p-SplitPanel.p-mod-horizontal > .p-SplitPanel-handle {
+  cursor: ew-resize;
+}
+
+
+.p-SplitPanel.p-mod-vertical > .p-SplitPanel-handle {
+  cursor: ns-resize;
+}
+
+
+.p-SplitPanel.p-mod-horizontal > .p-SplitPanel-handle:after {
   left: 50%;
   min-width: 7px;
   transform: translateX(-50%);
 }
 
 
-.p-SplitPanel-handle.p-mod-vertical:after {
+.p-SplitPanel.p-mod-vertical > .p-SplitPanel-handle:after {
   top: 50%;
   min-height: 7px;
   transform: translateY(-50%);
