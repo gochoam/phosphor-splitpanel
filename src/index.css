@@ -5,11 +5,6 @@
 |
 | The full license is in the file LICENSE, distributed with this software.
 |----------------------------------------------------------------------------*/
-.p-SplitPanel {
-  z-index: 0;
-}
-
-
 .p-SplitPanel-child {
   z-index: 0;
 }
