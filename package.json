@@ -1,6 +1,6 @@
 {
   "name": "phosphor-splitpanel",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "A Phosphor layout panel which arranges its children into resizable sections.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
