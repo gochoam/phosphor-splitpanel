@@ -23,10 +23,6 @@ import {
 } from 'phosphor-messaging';
 
 import {
-  NodeWrapper
-} from 'phosphor-nodewrapper';
-
-import {
   PanelLayout
 } from 'phosphor-panel';
 
@@ -38,6 +34,11 @@ import {
   ChildMessage, ResizeMessage, Widget
 } from 'phosphor-widget';
 
+
+/**
+ * The class name added to hidden split handles.
+ */
+const HIDDEN_CLASS = 'p-mod-hidden';
 
 /**
  * The class name added to horizontal split panels.
@@ -68,18 +69,6 @@ enum Orientation {
 
 
 /**
- * An object used as a split handle in a split layout.
- */
-export
-interface ISplitHandle extends NodeWrapper {
-  /**
-   * Whether the handle is hidden.
-   */
-  hidden: boolean;
-}
-
-
-/**
  * A factory object which creates handles for a split layout.
  */
 export
@@ -87,7 +76,7 @@ interface IHandleFactory {
   /**
    * Create a new split handle for use with a split layout.
    */
-  createHandle(): ISplitHandle;
+  createHandle(): HTMLElement;
 }
 
 
@@ -187,7 +176,7 @@ class SplitLayout extends PanelLayout {
    *
    * @returns The handle for the given index, or `undefined`.
    */
-  handleAt(index: number): ISplitHandle {
+  handleAt(index: number): HTMLElement {
     return this._handles[index];
   }
 
@@ -206,16 +195,16 @@ class SplitLayout extends PanelLayout {
   moveHandle(index: number, position: number): void {
     // Bail if the index is invalid or the handle is hidden.
     let handle = this._handles[index];
-    if (!handle || handle.hidden) {
+    if (!handle || handle.classList.contains(HIDDEN_CLASS)) {
       return;
     }
 
     // Compute the delta movement for the handle.
     let delta: number;
     if (this._orientation === Orientation.Horizontal) {
-      delta = position - handle.node.offsetLeft;
+      delta = position - handle.offsetLeft;
     } else {
-      delta = position - handle.node.offsetTop;
+      delta = position - handle.offsetTop;
     }
 
     // Bail if there is no handle movement.
@@ -269,7 +258,7 @@ class SplitLayout extends PanelLayout {
     arrays.insert(this._handles, index, handle);
     SplitLayoutPrivate.prepareGeometry(child);
     this.parent.node.appendChild(child.node);
-    this.parent.node.appendChild(handle.node);
+    this.parent.node.appendChild(handle);
     if (this.parent.isAttached) sendMessage(child, Widget.MsgAfterAttach);
     this.parent.fit();
   }
@@ -307,7 +296,7 @@ class SplitLayout extends PanelLayout {
     let handle = arrays.removeAt(this._handles, index);
     if (this.parent.isAttached) sendMessage(child, Widget.MsgBeforeDetach);
     this.parent.node.removeChild(child.node);
-    this.parent.node.removeChild(handle.node);
+    this.parent.node.removeChild(handle);
     SplitLayoutPrivate.resetGeometry(child);
     this.parent.fit();
   }
@@ -383,20 +372,20 @@ class SplitLayout extends PanelLayout {
   private _fit(): void {
     // Update the handles and track the visible widget count.
     let nVisible = 0;
-    let lastHandle: ISplitHandle = null;
+    let lastHandle: HTMLElement = null;
     for (let i = 0, n = this.childCount(); i < n; ++i) {
       let handle = this._handles[i];
       if (this.childAt(i).isHidden) {
-        handle.hidden = true;
+        handle.classList.add(HIDDEN_CLASS);
       } else {
-        handle.hidden = false;
+        handle.classList.remove(HIDDEN_CLASS);
         lastHandle = handle;
         nVisible++;
       }
     }
 
     // Hide the handle for the last visible child.
-    if (lastHandle) lastHandle.hidden = true;
+    if (lastHandle) lastHandle.classList.add(HIDDEN_CLASS);
 
     // Update the fixed space for the visible items.
     this._fixed = this._spacing * Math.max(0, nVisible - 1);
@@ -545,7 +534,7 @@ class SplitLayout extends PanelLayout {
   private _box: IBoxSizing = null;
   private _factory: IHandleFactory;
   private _sizers: BoxSizer[] = [];
-  private _handles: ISplitHandle[] = [];
+  private _handles: HTMLElement[] = [];
   private _orientation = Orientation.Horizontal;
 }
 
@@ -628,9 +617,9 @@ namespace SplitLayoutPrivate {
    * Create a new split handle using the given factory.
    */
   export
-  function createHandle(factory: IHandleFactory): ISplitHandle {
+  function createHandle(factory: IHandleFactory): HTMLElement {
     let handle = factory.createHandle();
-    handle.node.style.position = 'absolute';
+    handle.style.position = 'absolute';
     return handle;
   }
 
@@ -704,8 +693,8 @@ namespace SplitLayoutPrivate {
    * Set the layout geometry of a split handle.
    */
   export
-  function setHandleGeo(handle: ISplitHandle, left: number, top: number, width: number, height: number): void {
-    let style = handle.node.style;
+  function setHandleGeo(handle: HTMLElement, left: number, top: number, width: number, height: number): void {
+    let style = handle.style;
     style.top = `${top}px`;
     style.left = `${left}px`;
     style.width = `${width}px`;

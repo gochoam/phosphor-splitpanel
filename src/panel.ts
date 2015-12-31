@@ -20,10 +20,6 @@ import {
 } from 'phosphor-messaging';
 
 import {
-  NodeWrapper
-} from 'phosphor-nodewrapper';
-
-import {
   Panel
 } from 'phosphor-panel';
 
@@ -32,7 +28,7 @@ import {
 } from 'phosphor-widget';
 
 import {
-  ISplitHandle, Orientation, SplitLayout
+  Orientation, SplitLayout
 } from './layout';
 
 
@@ -50,35 +46,6 @@ const CHILD_CLASS = 'p-SplitPanel-child';
  * The class name added to split panel handles.
  */
 const HANDLE_CLASS = 'p-SplitPanel-handle';
-
-/**
- * The class name added to hidden split handles.
- */
-const HIDDEN_CLASS = 'p-mod-hidden';
-
-
-/**
- * A concrete implementation of `ISplitHandle`.
- *
- * #### Notes
- * This is the default split handle type for a [[SplitPanel]].
- */
-export
-class SplitHandle extends NodeWrapper implements ISplitHandle {
-  /**
-   * Get whether the split handle is hidden.
-   */
-  get hidden(): boolean {
-    return this.hasClass(HIDDEN_CLASS);
-  }
-
-  /**
-   * Set whether the split handle is hidden.
-   */
-  set hidden(value: boolean) {
-    this.toggleClass(HIDDEN_CLASS, value);
-  }
-}
 
 
 /**
@@ -102,9 +69,9 @@ class SplitPanel extends Panel {
    * #### Notes
    * This may be reimplemented to create custom split handles.
    */
-  static createHandle(): ISplitHandle {
-    let handle = new SplitHandle();
-    handle.addClass(HANDLE_CLASS);
+  static createHandle(): HTMLElement {
+    let handle = document.createElement('div');
+    handle.className = HANDLE_CLASS;
     return handle;
   }
 
@@ -181,7 +148,7 @@ class SplitPanel extends Panel {
    *
    * @returns The split handle for the widget, or `undefined`.
    */
-  handleAt(index: number): ISplitHandle {
+  handleAt(index: number): HTMLElement {
     return (this.layout as SplitLayout).handleAt(index);
   }
 
@@ -293,7 +260,7 @@ class SplitPanel extends Panel {
 
     // Compute the offset delta for the handle press.
     let delta: number;
-    let rect = handle.node.getBoundingClientRect();
+    let rect = handle.getBoundingClientRect();
     if (layout.orientation === Orientation.Horizontal) {
       delta = event.clientX - rect.left;
     } else {
@@ -301,7 +268,7 @@ class SplitPanel extends Panel {
     }
 
     // Override the cursor and store the press data.
-    let style = window.getComputedStyle(handle.node);
+    let style = window.getComputedStyle(handle);
     let override = overrideCursor(style.cursor);
     this._pressData = { index, delta, override };
   }
@@ -452,7 +419,7 @@ namespace SplitPanelPrivate {
     /**
      * The split handle at the index.
      */
-    handle: ISplitHandle;
+    handle: HTMLElement;
   }
 
   /**
@@ -462,7 +429,7 @@ namespace SplitPanelPrivate {
   function findHandle(layout: SplitLayout, target: HTMLElement): IHandlePair {
     for (let i = 0, n = layout.childCount(); i < n; ++i) {
       let handle = layout.handleAt(i);
-      if (handle.node.contains(target)) {
+      if (handle.contains(target)) {
         return { index: i, handle };
       }
     }
