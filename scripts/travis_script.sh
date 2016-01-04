@@ -6,4 +6,6 @@ npm run clean
 npm run build
 npm test
 npm run test:coverage
+npm run clean:example
+npm run build:example
 npm run docs
