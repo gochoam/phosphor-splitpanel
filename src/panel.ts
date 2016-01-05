@@ -76,11 +76,6 @@ class SplitPanel extends Panel {
   }
 
   /**
-   * The static type of the constructor.
-   */
-  "constructor": typeof SplitPanel;
-
-  /**
    * Construct a new split panel.
    */
   constructor() {

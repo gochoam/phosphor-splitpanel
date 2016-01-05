@@ -86,11 +86,6 @@ interface IHandleFactory {
 export
 class SplitLayout extends PanelLayout {
   /**
-   * The static type of the constructor.
-   */
-  "constructor": typeof SplitLayout;
-
-  /**
    * Construct a new split layout.
    *
    * @param factory - The handle factory for creating split handles.
