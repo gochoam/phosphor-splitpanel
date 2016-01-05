@@ -122,9 +122,8 @@ npm run <span class="hljs-built_in">test</span>:ie
 				</ul>
 				<h2 id="bundle-for-the-browser">Bundle for the Browser</h2>
 				<p>Follow the package install instructions first.</p>
-				<pre><code class="lang-bash">npm install --save-dev browserify browserify-css
-browserify myapp.js -o mybundle.js
-</code></pre>
+				<p>Any bundler that understands how to <code>require()</code> files with <code>.js</code> and <code>.css</code>
+				extensions can be used with this package.</p>
 				<h2 id="usage-examples">Usage Examples</h2>
 				<p><strong>Note:</strong> This module is fully compatible with Node/Babel/ES6/ES5. Simply
 				omit the type declarations when using a language other than TypeScript.</p>
