@@ -7,6 +7,7 @@ module.exports = {
   resolve: {
     extensions: ['', '.ts', '.js']
   },
+  bail: true,
   module: {
     loaders: [
       { test: /\.ts$/, loader: 'ts-loader' },
