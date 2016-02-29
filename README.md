@@ -4,9 +4,10 @@ phosphor-splitpanel
 [![Build Status](https://travis-ci.org/phosphorjs/phosphor-splitpanel.svg)](https://travis-ci.org/phosphorjs/phosphor-splitpanel?branch=master)
 [![Coverage Status](https://coveralls.io/repos/phosphorjs/phosphor-splitpanel/badge.svg?branch=master&service=github)](https://coveralls.io/github/phosphorjs/phosphor-splitpanel?branch=master)
 
-A Phosphor layout panel which arranges its children into resizable sections.
-
-[API Docs](http://phosphorjs.github.io/phosphor-splitpanel/api/)
+This module provides a Phosphor layout panel which arranges its children into
+resizable sections. The user can easily nest panels that will automatically
+split and rearrange themselves providing a straightforward way of creating
+a high-quality flexible interfaces.
 
 
 Package Install
@@ -107,6 +108,13 @@ Usage Examples
 **Note:** This module is fully compatible with Node/Babel/ES6/ES5. Simply
 omit the type declarations when using a language other than TypeScript.
 
+Phosphor split panels have methods to easily arrange widgets in a row or a
+column, grouping them into resizable sections.
+
+The following code imports the required modules and creates some content for
+the panels:
+
+
 ```typescript
 import {
   SplitPanel
@@ -116,25 +124,75 @@ import {
   Widget
 } from 'phosphor-widget';
 
-
 // Create some content for the panel.
-let w1 = new Widget();
-let w2 = new Widget();
-let w3 = new Widget();
+function createContent(name: string): Widget {
+  let widget = new Widget();
+  widget.addClass('content');
+  widget.addClass(name);
+  return widget;
+}
 
+let red1 = createContent('red');
+let red2 = createContent('red');
+let yellow1 = createContent('yellow');
+let green1 = createContent('green');
+let blue1 = createContent('blue');
+```
+
+Now some of these widgets are put into a subpanel with a basic layout. The
+`.orientation` in this case is set to `Vertical` which stacks the widgets
+into column. Another possibility is `Horizontal` to get the opposite
+orientation and arrange the widgets into a row.
+
+Each new widget is inserted into the subpanel by the `.addChild()` method.
+
+```typescript
+let subpanel = new SplitPanel();
+subpanel.orientation = SplitPanel.Vertical;
+subpanel.addChild(red1);
+subpanel.addChild(green1);
+subpanel.addChild(blue1);
+```
+
+To change the size of the widgets in the main split panel `.setStretch()` takes
+two arguments, the widget and the stretch factor. Te stretch factor is a number
+representing the relative weight of each widget inside the panel. In this case
+the `subpanel` is 3 times as big as `yellow1`, which is half the size of
+`red2`.
+
+```typescript
 // Set the widget stretch factors (optional).
-SplitPanel.setStretch(w1, 0);
-SplitPanel.setStretch(w2, 2);
-SplitPanel.setStretch(w3, 1);
+SplitPanel.setStretch(subpanel, 3);
+SplitPanel.setStretch(yellow1, 1);
+SplitPanel.setStretch(red2, 2);
+```
 
-// Setup the split panel.
+To set up the main panel you just have to add the corresponding widgets with
+`.addChild()`. The separation between adjacent panels can be adjusted with
+`.spacing`.
+
+```typescript
 let panel = new SplitPanel();
-panel.handleSize = 5;
 panel.orientation = SplitPanel.Horizontal;
-panel.addChild(w1);
-panel.addChild(w2);
-panel.addChild(w3);
+panel.addChild(subpanel);
+panel.addChild(yellow1);
+panel.addChild(red2);
+panel.spacing = 6;
+panel.id = 'main';
 
+window.onresize = () => { panel.update(); };
+window.onload = () => { panel.attach(document.body); };
+```
+
+Split panels inherit all the methods from the
+[base Widget class](http://phosphorjs.github.io/phosphor-widget/api/), which
+makes it easy to set id and toggle the CSS classes.
+
+To change the sizes of the widgets in a panel use `setSizes()`. This method
+takes as argument a numeric array with the relative sizes that will be
+normalized to accommodate the available layout space.
+
+```typescript
 // sometime later...
 
 // Get the normalized relative widget sizes.
@@ -143,3 +201,8 @@ let sizes = panel.sizes();
 // Set the relative widget sizes.
 panel.setSizes([2, 4, 1]);
 ```
+
+API
+---
+
+[API Docs](http://phosphorjs.github.io/phosphor-splitpanel/api/)
