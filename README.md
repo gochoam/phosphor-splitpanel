@@ -7,7 +7,7 @@ phosphor-splitpanel
 This module provides a Phosphor layout panel which arranges its children into
 resizable sections. The user can easily nest panels that will automatically
 split and rearrange themselves providing a straightforward way of creating
-a high-quality flexible interfaces.
+high-quality flexible interfaces.
 
 
 Package Install
@@ -141,7 +141,7 @@ let blue1 = createContent('blue');
 
 Now some of these widgets are put into a subpanel with a basic layout. The
 `.orientation` in this case is set to `Vertical` which stacks the widgets
-into column. Another possibility is `Horizontal` to get the opposite
+into a column. Another possibility is `Horizontal` to get the opposite
 orientation and arrange the widgets into a row.
 
 Each new widget is inserted into the subpanel by the `.addChild()` method.
@@ -167,9 +167,8 @@ SplitPanel.setStretch(yellow1, 1);
 SplitPanel.setStretch(red2, 2);
 ```
 
-To set up the main panel you just have to add the corresponding widgets with
-`.addChild()`. The separation between adjacent panels can be adjusted with
-`.spacing`.
+To set up the main panel add the corresponding widgets with `.addChild()`. The
+separation between adjacent panels can be adjusted with `.spacing`.
 
 ```typescript
 let panel = new SplitPanel();
@@ -189,7 +188,7 @@ Split panels inherit all the methods from the
 makes it easy to set id and toggle the CSS classes.
 
 To change the sizes of the widgets in a panel use `setSizes()`. This method
-takes as argument a numeric array with the relative sizes that will be
+takes one argument, a numeric array with the relative sizes that will be
 normalized to accommodate the available layout space.
 
 ```typescript
